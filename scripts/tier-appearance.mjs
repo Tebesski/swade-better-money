@@ -319,7 +319,6 @@ export function registerTierAppearance() {
   });
   game.settings.registerMenu(MODULE_ID, "tierAppearanceMenu", {
     name: sbsI18n("swade-better-money.UI.TierAppearance_c3467ea379"), label: sbsI18n("swade-better-money.UI.ConfigureTierAppearance_d4fb6127b8"),
-    hint: sbsI18n("swade-better-money.UI.Setitemnamecoloursbordersand_52075cdd87"),
     icon: "fa-solid fa-gem", type: TierAppearanceWindow, restricted: true
   });
 }

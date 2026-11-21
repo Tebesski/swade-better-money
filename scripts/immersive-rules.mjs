@@ -17,16 +17,11 @@ export const DEFAULT_RULES = {
     tier("luxury", "Luxury", "1d4 * 6000", "Airships, sponsorships, and custom prototypes. Add any GM-set premium as a manual amount.")
   ],
   lifestyles: [
-    {...tier("destitute", "Destitute", "0", sbsI18n("swade-better-money.UI.Sleepingroughandeatingwhatyou_a6d1635fd8")),
-      noNaturalHealing: true, anemic: true, sessionFatigue: 1, monthlyBennies: 0, maxBennies: 0},
-    {...tier("poor", "Poor", "1000", sbsI18n("swade-better-money.UI.Cheapmealsandacrampedtenement_b9bdbe2a33")),
-      noNaturalHealing: true, anemic: true, sessionFatigue: 0, monthlyBennies: 0, maxBennies: 0},
-    {...tier("modest", "Modest", "2500", "A secure apartment with utilities and decent food."),
-      noNaturalHealing: false, anemic: false, sessionFatigue: 0, monthlyBennies: 0, maxBennies: 0},
-    {...tier("comfortable", "Comfortable", "6000", sbsI18n("swade-better-money.UI.Goodmealsandanapartmentin_6eb83b63e5")),
-      noNaturalHealing: false, anemic: false, sessionFatigue: 0, monthlyBennies: 1, maxBennies: 0},
-    {...tier("wealthy", "Wealthy", "15000", "A penthouse in one of the best districts."),
-      noNaturalHealing: false, anemic: false, sessionFatigue: 0, monthlyBennies: 0, maxBennies: 1}
+    tier("destitute", "Destitute", "0", sbsI18n("swade-better-money.UI.Sleepingroughandeatingwhatyou_a6d1635fd8")),
+    tier("poor", "Poor", "1000", sbsI18n("swade-better-money.UI.Cheapmealsandacrampedtenement_b9bdbe2a33")),
+    tier("modest", "Modest", "2500", "A secure apartment with utilities and decent food."),
+    tier("comfortable", "Comfortable", "6000", sbsI18n("swade-better-money.UI.Goodmealsandanapartmentin_6eb83b63e5")),
+    tier("wealthy", "Wealthy", "15000", "A penthouse in one of the best districts.")
   ],
   obligations: [
     tier("minor", sbsI18n("swade-better-money.UI.MinorObligation_edc024974e"), "500", sbsI18n("swade-better-money.UI.Recurringfinancialsupportorasmaller_d72989b9b2")),
@@ -40,10 +35,10 @@ export const DEFAULT_RULES = {
   hustles: [{
     id: "side", get name() { return sbsI18n("swade-better-money.UI.SideHustle_fee3bbcff7"); }, get description() { return sbsI18n("swade-better-money.UI.Pickarelevantskilltoearn_ac7ad02e70"); },
     outcomes: {
-      critical: {formula: "0", fatigue: 0, get note() { return sbsI18n("swade-better-money.UI.EarnnothingTheGMdeterminesa_33c1b1436e"); }},
-      failure: {formula: "1d4 * 20 + 50", fatigue: 1, get note() { return sbsI18n("swade-better-money.UI.Youearnalittlebuttake_af19879c94"); }},
-      success: {formula: "1d4 * 100 + 100", fatigue: 0, get note() { return sbsI18n("swade-better-money.UI.Youscrapebythisweek_0c3012b0d3"); }},
-      raise: {formula: "2d4 * 100 + 100", fatigue: 0, get note() { return sbsI18n("swade-better-money.UI.Itwasaprofitableweek_0e13ef0523"); }}
+      critical: {formula: "0", get note() { return sbsI18n("swade-better-money.UI.EarnnothingTheGMdeterminesa_33c1b1436e"); }},
+      failure: {formula: "1d4 * 20 + 50", get note() { return sbsI18n("swade-better-money.UI.Youearnalittlebuttake_af19879c94"); }},
+      success: {formula: "1d4 * 100 + 100", get note() { return sbsI18n("swade-better-money.UI.Youscrapebythisweek_0c3012b0d3"); }},
+      raise: {formula: "2d4 * 100 + 100", get note() { return sbsI18n("swade-better-money.UI.Itwasaprofitableweek_0e13ef0523"); }}
     }
   }]
 };
@@ -71,7 +66,7 @@ export function hustleLabel() {
 }
 
 export function hudHustlesEnabled() {
-  return immersiveEnabled() && game.settings.get(MODULE_ID, "replaceEarn");
+  return immersiveEnabled();
 }
 
 export function ruleCurrency() {
@@ -82,7 +77,16 @@ export function ruleCurrency() {
 let installPending;
 export function installYuan() {
   if (!game.user.isGM) return;
-  installPending ??= installYuanPreset().finally(() => { installPending = null; });
+  installPending ??= (async () => {
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      classes: ["swade", "better-money"], window: {title: "Install Yuan Example"},
+      content: "<p>This will overwrite all economy rule settings with the Yuan example defaults and restore the Yuan denomination setup. Continue?</p>",
+      rejectClose: false
+    });
+    if (!confirmed) return false;
+    await installYuanPreset();
+    return true;
+  })().finally(() => { installPending = null; });
   return installPending;
 }
 
@@ -92,6 +96,9 @@ async function installYuanPreset() {
   const pack = await ensurePack();
   const items = await pack.getDocuments({type: MONEY_TYPE});
   const examples = [10000, 5000, 2500, 1000, 500, 100, 50, 20, 10, 5, 1];
+  const updates = items.filter(item => item.system.currencyId === currencyId && examples.includes(item.system.price))
+    .map(item => ({_id: item.id, "system.tier": examples.indexOf(item.system.price) + 1, "system.weight": 0}));
+  if (updates.length) await Item.implementation.updateDocuments(updates, {pack: pack.collection});
   const missing = examples.flatMap((price, index) => {
     if (items.some(item => item.system.currencyId === currencyId && item.system.price === price)) return [];
     return [{
@@ -103,9 +110,6 @@ async function installYuanPreset() {
     const added = await Item.implementation.createDocuments(missing, {pack: pack.collection});
     if (added.length !== missing.length) throw new Error(sbsI18n("swade-better-money.UI.Checkthelockandpermissionson_796e674c66"));
   }
-  const rules = immersiveRules();
-  if (rules.currencyId === YUAN && currencyId !== YUAN) {
-    await game.settings.set(MODULE_ID, "immersiveRules", {...rules, currencyId});
-  }
+  await game.settings.set(MODULE_ID, "immersiveRules", {...foundry.utils.deepClone(DEFAULT_RULES), currencyId});
   await game.settings.set(MODULE_ID, "yuanInstalled", true);
 }

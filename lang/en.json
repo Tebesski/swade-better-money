@@ -372,7 +372,7 @@
       "Bargainingskills_fc0f8b0a2b": "Bargaining skills",
       "EnterskillnamesorSWADEIDs_5c0e3f7ee7": "Enter skill names or SWADE IDs, separated by commas.",
       "SavePreferences_e5b8e6907f": "Save Preferences",
-      "InstallYuanExample_496ed2c139": "Install Yuan Example",
+      "InstallYuanExample_496ed2c139": "Install example",
       "AddEntry_b65440dcee": "Add Entry",
       "Macros_866dcd98ec": "Macros",
       "Wallet_d1c9a01d57": "Wallet",
@@ -501,5 +501,7 @@
       "TheGMhasnotrespondedYou_8e07c0080e": "The GM has not responded. You can try again.",
       "text_982d9e3eb9": "text"
     }
-  }
+  },
+  "swade-better-money.UI.Youearnalittlebuttake_af19879c94": "You earn a little.",
+  "swade-better-money.UI.CurrencyIcon": "Icon"
 }

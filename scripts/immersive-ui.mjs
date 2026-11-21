@@ -7,13 +7,13 @@ import {
   DEFAULT_RULES, hudHustlesEnabled, hustleLabel, immersiveEnabled, immersiveRules, installYuan, OUTCOMES, purchaseTierId, ruleCurrency
 } from "./immersive-rules.mjs";
 import {
-  awardSelected, claimUpkeepBenny, escape, formDialog, moneyText, runHustle, selectOptions
+  awardSelected, escape, formDialog, moneyText, runHustle, selectOptions
 } from "./immersive-actions.mjs";
 import {
-  anemicOperations, bennyAllowance, configureLifestyle, gamePeriod, invoices, lifestyleEffects,
-  lifestyleNotes, removeObligation, saveObligation, upkeepState
+  configureLifestyle, gamePeriod, invoices,
+  removeObligation, saveObligation, upkeepState
 } from "./upkeep.mjs";
-import {commitOperations, creditIncome, withWalletLock} from "./wallet.mjs";
+import {creditIncome, withWalletLock} from "./wallet.mjs";
 import {synchroniseUpkeep} from "./upkeep-calendar.mjs";
 import {payExpenses, manageExpenses} from "./expense-dialog.mjs";
 
@@ -22,11 +22,6 @@ const GROUPS = {
   get purchases() { return sbsI18n("swade-better-money.UI.PurchaseTiers_181c4affb1"); }, get lifestyles() { return sbsI18n("swade-better-money.UI.MonthlyUpkeep_b0e8def75c"); }, get obligations() { return sbsI18n("swade-better-money.UI.MonthlyObligations_598118dbce"); },
   get gigs() { return sbsI18n("swade-better-money.UI.GigRewards_12cedb7f74"); }, get hustles() { return sbsI18n("swade-better-money.UI.Hustles_298fa1dc5f"); }
 };
-const LIFESTYLE_FIELDS = {
-  get sessionFatigue() { return sbsI18n("swade-better-money.UI.Fatigueatsessionstart_05c5761c7a"); }, get monthlyBennies() { return sbsI18n("swade-better-money.UI.ClaimableBenniesperpaidmonth_027e3b48e9"); },
-  get maxBennies() { return sbsI18n("swade-better-money.UI.BonustomaximumBennies_eb7521c38a"); }
-};
-
 const report = error => ui.notifications.error(error.message || String(error));
 
 function input(label, key, value, type = sbsI18n("swade-better-money.UI.text_982d9e3eb9")) {
@@ -55,20 +50,14 @@ async function editTier(group, existing) {
     ${isHustle ? Object.entries(OUTCOMES).map(([key, label]) => {
       const outcome = entry.outcomes?.[key];
       return `<fieldset><legend>${label}</legend>
-        <div class="money-fields">${input(sbsI18n("swade-better-money.UI.Rewardformula_0673fddc38"), sbsI18n("swade-better-money.UI.formula_51a679f11d", {p0: (key)}), outcome?.formula ?? "0")}
-        ${input(sbsI18n("swade-better-money.UI.Fatiguelevels_c252a4c0ac"), sbsI18n("swade-better-money.UI.fatigue_203181e670", {p0: (key)}), outcome?.fatigue ?? 0, sbsI18n("swade-better-money.UI.number_12886f9d00"))}</div>
+        <div class="money-fields">${input(sbsI18n("swade-better-money.UI.Rewardformula_0673fddc38"), sbsI18n("swade-better-money.UI.formula_51a679f11d", {p0: (key)}), outcome?.formula ?? "0")}</div>
         ${textarea(sbsI18n("swade-better-money.UI.Outcomechatnote_63ef37bbe6"), `note-${key}`, outcome?.note)}
       </fieldset>`;
     }).join("") : input(lifestyle || group === "obligations" ? sbsI18n("swade-better-money.UI.Monthlycost_0d6a2dca33") : sbsI18n("swade-better-money.UI.Formula_d00bd4ec32"), "formula", entry.formula)}
     ${bargain ? `<fieldset><legend>${sbsI18n("swade-better-money.UI.Bargaining_18d902a13d")}</legend><div class="money-fields">
       <label class="money-field">${sbsI18n("swade-better-money.UI.BaseintervalNeutral_0df156cace")} <input type="number" name="bargainInterval" min="0.000001" step="0.000001" value="${escape(bargain.interval)}" required></label>
       ${input(sbsI18n("swade-better-money.UI.Acceptablelimitformula_9a5cd14fa7"), sbsI18n("swade-better-money.UI.bargainFormula_83a42021b1"), bargain.formula)}</div></fieldset>` : ""}
-    ${lifestyle ? `
-      <div class="money-fields">${Object.entries(LIFESTYLE_FIELDS).map(([key, label]) =>
-        input(label, key, entry[key] ?? 0, sbsI18n("swade-better-money.UI.number_12886f9d00"))).join("")}</div>
-      <label><input name="anemic" type="checkbox" ${entry.anemic ? "checked" : ""}> ${sbsI18n("swade-better-money.UI.GrantAnemic_2cac5f1714")}</label>
-      <label><input name="noNaturalHealing" type="checkbox" ${entry.noNaturalHealing ? "checked" : ""}> ${sbsI18n("swade-better-money.UI.DisableNaturalHealing_1f043876f9")}</label>
-    ` : ""}`;
+    `;
   const data = await formDialog(GROUPS[group], fields, sbsI18n("swade-better-money.UI.SaveEntry_cf424c8a99"));
   if (!data || data === "cancel") return null;
   const name = data.name.trim();
@@ -76,17 +65,12 @@ async function editTier(group, existing) {
   const updated = {id: existing?.id ?? foundry.utils.randomID(), name, description: data.description.trim()};
   if (isHustle) {
     updated.outcomes = Object.fromEntries(Object.keys(OUTCOMES).map(key => [key, {
-      formula: normalizedFormula(data[`formula-${key}`]), fatigue: Number(data[`fatigue-${key}`]), note: data[`note-${key}`].trim()
+      formula: normalizedFormula(data[`formula-${key}`]), note: data[`note-${key}`].trim()
     }]));
   } else updated.formula = normalizedFormula(data.formula, lifestyle || group === "obligations");
   if (bargain) {
     positiveAmount(data.bargainInterval);
     updated.bargain = {interval: data.bargainInterval, formula: normalizedFormula(data.bargainFormula)};
-  }
-  if (lifestyle) {
-    for (const key of Object.keys(LIFESTYLE_FIELDS)) updated[key] = Number(data[key]);
-    updated.anemic = Boolean(data.anemic);
-    updated.noNaturalHealing = Boolean(data.noNaturalHealing);
   }
   return updated;
 }
@@ -125,7 +109,7 @@ class ImmersiveSettings extends HandlebarsApplicationMixin(ApplicationV2) {
       },
       installYuan: async function () {
         await this.applyChange(async () => {
-          await installYuan();
+          if (!await installYuan()) return;
           ui.notifications.info(sbsI18n("swade-better-money.UI.TheYuanexampleisavailablein_9bd56176df"));
         });
       },
@@ -148,7 +132,7 @@ class ImmersiveSettings extends HandlebarsApplicationMixin(ApplicationV2) {
     return {...context, rules: {bargainTraits: DEFAULT_BARGAIN_TRAITS, ...rules},
       currencies: getCatalog().currencies.map(entry => ({...entry, selected: entry.id === rules.currencyId})),
       groups: Object.entries(GROUPS).map(([id, label]) => ({id, label, entries: rules[id].map(entry => ({
-        ...entry, notes: id === "lifestyles" ? lifestyleNotes(entry).join(" ") : ""
+        ...entry, notes: ""
       }))}))
     };
   }
@@ -210,16 +194,10 @@ export function registerImmersiveSettings(refresh) {
     name: sbsI18n("swade-better-money.UI.ImmersiveEconomy_d07815b42a"), hint: sbsI18n("swade-better-money.UI.Usepurchasetiersmonthlyupkeepgigs_318c675888"),
     scope: "world", config: true, type: Boolean, default: false, onChange: () => {
       refreshVariant(refresh);
-      void ensureInitialPreset().catch(report);
     }
-  });
-  game.settings.register(MODULE_ID, "replaceEarn", {
-    name: sbsI18n("swade-better-money.UI.UseHustlesforSWADEHUDEarn_c21ea28673"), hint: sbsI18n("swade-better-money.UI.WhenImmersiveEconomyisenabledthe_b2cce35e0a"),
-    scope: "world", config: true, type: Boolean, default: true, onChange: refreshHud
   });
   game.settings.registerMenu(MODULE_ID, "immersiveSettings", {
     name: sbsI18n("swade-better-money.UI.ImmersiveEconomyRules_a21ace16cd"), label: sbsI18n("swade-better-money.UI.ConfigureImmersiveEconomy_3d95e483b2"), icon: "fa-solid fa-coins",
-    hint: sbsI18n("swade-better-money.UI.Edittiersmonthlycostsrewardformulas_70ff8edac9"),
     type: ImmersiveSettings, restricted: true
   });
 }
@@ -237,24 +215,9 @@ function refreshVariant(refresh) {
   }
   refresh();
   refreshHud();
-  if (game.users.activeGM?.id !== game.user.id) return;
-  const actors = new Map(game.actors.contents.map(actor => [actor.uuid, actor]));
-  for (const scene of game.scenes) {
-    for (const token of scene.tokens) if (!token.actorLink && token.actor) actors.set(token.actor.uuid, token.actor);
-  }
-  void withWalletLock(async () => {
-    const changes = (await Promise.all([...actors.values()].map(actor => anemicOperations(actor)))).flat();
-    if (changes.length) await commitOperations(changes);
-  }).catch(report);
-}
-
-async function ensureInitialPreset() {
-  if (game.ready && game.users.activeGM?.id === game.user.id && immersiveEnabled()
-    && !game.settings.get(MODULE_ID, "yuanInstalled")) await installYuan();
 }
 
 export function startImmersiveIntegration(refresh) {
-  void ensureInitialPreset().catch(report);
   let previous = gamePeriod().month;
   const update = () => {
     const month = gamePeriod().month;
@@ -271,7 +234,7 @@ export const immersiveApi = {
   hustleEnabled: hudHustlesEnabled, hustleLabel,
   hustle: async (...args) => { try {return await runHustle(...args);} catch (error) {report(error);} },
   award: async () => {try {await awardSelected();} catch (error) {report(error);} },
-  canHealNaturally: actor => !lifestyleEffects(actor)?.noNaturalHealing,
+  canHealNaturally: () => true,
   receiveEarnings: async (actor, amount) => {
     const catalog = getCatalog();
     if (!catalog.primary) return false;
@@ -329,9 +292,8 @@ function renderUpkeep(app, root, actor) {
   const {lifestyles, obligations} = immersiveRules();
   const rows = invoices(actor, state);
   const currency = ruleCurrency();
-  const current = lifestyleEffects(actor);
   const pending = lifestyles.find(entry => entry.id === state.lifestyle?.id);
-  const allowance = bennyAllowance(actor);
+
   panel.innerHTML = `
     <fieldset><legend>${sbsI18n("swade-better-money.UI.Lifestyle_2e6c28eb66")}</legend>
       ${game.user.isGM ? `<button type="button" data-upkeep="sync">${sbsI18n("swade-better-money.UI.Synchronisewiththecalendar_3c5a649d8f")}</button>` : ""}
@@ -340,9 +302,6 @@ function renderUpkeep(app, root, actor) {
       </label>` : ""}
       ${pending ? `<p>${sbsI18n("swade-better-money.UI.permonth_6140225a53", {p0: (escape(pending.name)), p1: (escape(moneyText(Math.round(analyzeFormula(pending.formula).min * 1e6), currency)))})}</p>
         <p class="hint">${escape(pending.description)}</p>` : ""}
-      ${current ? `<p><strong>${sbsI18n("swade-better-money.UI.Activelifestyle_0138c1d59e")}</strong> ${escape(current.name)}</p>
-        <p class="hint">${escape(lifestyleNotes(current).join(" "))}</p>` : ""}
-      ${actor.isOwner && allowance ? `<button type="button" data-upkeep="benny">${sbsI18n("swade-better-money.UI.ClaimUpkeepBennieavailable_1f57213eae", {p0: (allowance)})}</button>` : ""}
     </fieldset>
     <fieldset><legend>${sbsI18n("swade-better-money.UI.MonthlyCharges_4b674507b6")}</legend>
       ${actor.isOwner ? `<button type="button" data-upkeep="add">${sbsI18n("swade-better-money.UI.AddObligation_2acc43743d")}</button>` : ""}
@@ -373,7 +332,6 @@ function renderUpkeep(app, root, actor) {
       case "sync": void run(() => synchroniseUpkeep(actor)); break;
       case "pay": void run(() => payExpenses(actor)); break;
       case "manage": void run(() => manageExpenses(actor)); break;
-      case "benny": void run(() => claimUpkeepBenny(actor)); break;
       case "remove": void run(() => withWalletLock(() => removeObligation(actor, button.dataset.id))); break;
       case "add":
       case "edit": void run(async () => {

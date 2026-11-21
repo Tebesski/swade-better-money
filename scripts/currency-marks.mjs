@@ -6,7 +6,7 @@ export function currencyCharacters(text) {
 }
 
 export function currencyMark(currency = {}) {
-  const images = [currency.image, currency.image2, currency.image3].filter(Boolean);
+  const images = [currency.image || currency.image2 || currency.image3].filter(Boolean);
   const text = currencyCharacters(currency.symbol).slice(0, MAX_CURRENCY_SYMBOLS).join("");
   return {images, text: images.length ? "" : text};
 }

@@ -85,16 +85,14 @@ export async function storeCurrency(data) {
   const name = String(data.name).trim();
   const symbol = String(data.symbol ?? "").trim();
   const image = String(data.image ?? "").trim();
-  const image2 = String(data.image2 ?? "").trim();
-  const image3 = String(data.image3 ?? "").trim();
   if (!name) throw new Error(sbsI18n("swade-better-money.UI.Enteracurrencyname_d617df43ce"));
   if (currencyCharacters(symbol).length > MAX_CURRENCY_SYMBOLS) throw new Error(sbsI18n("swade-better-money.UI.Useuptothreecharactersfor_c7ec759969"));
-  if ([image, image2, image3].some(path => /^data:/i.test(path))) throw new Error(sbsI18n("swade-better-money.UI.Chooseanimagefileorlink_19880e474a"));
+  if ([image].some(path => /^data:/i.test(path))) throw new Error(sbsI18n("swade-better-money.UI.Chooseanimagefileorlink_19880e474a"));
   if (catalog.currencies.some(currency => currency.id !== data.id && currency.name.toLowerCase() === name.toLowerCase())) {
     throw new Error(sbsI18n("swade-better-money.UI.Acurrencywiththisnamealready_1ec79cc219"));
   }
   const id = data.id || foundry.utils.randomID();
-  const entry = {id, name, symbol, image, image2, image3};
+  const entry = {id, name, symbol, image, image2: "", image3: ""};
   const existing = catalog.currencies.find(currency => currency.id === id);
   if (existing) Object.assign(existing, entry);
   else catalog.currencies.push(entry);

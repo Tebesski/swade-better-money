@@ -1,7 +1,7 @@
 import {t as sbsI18n} from "./i18n.mjs";
 import {findRate, getCatalog, getDenominations, getHoldings, MODULE_ID} from "./catalog.mjs";
 import {convert, exactChange, formatAmount, payment, positiveAmount, positiveQuantity, safeUnits, toUnits} from "./economy.mjs";
-import {anemicOperations, prepareBilling, prepareExpenses, upkeepPath} from "./upkeep.mjs";
+import {prepareBilling, prepareExpenses, upkeepPath} from "./upkeep.mjs";
 import {combineOptions, lowerDenominations, planDenominationChange} from "./denomination-change.mjs";
 import {BETTER_EFFECTS, storedMoneyFlags} from "./money-flags.mjs";
 import {immersiveEnabled, ruleCurrency} from "./immersive-rules.mjs";
@@ -248,7 +248,7 @@ function runTransaction(actor, request, signature, user) {
     if (plan.signature !== signature) throw new Error(sbsI18n("swade-better-money.UI.ThewalletorcatalogchangedPreview_eae795a2d6"));
     const operations = plan.sources ? plan.sources.flatMap(source => buildOperations(source.actor, source.plan)) : buildOperations(actor, plan);
     if (plan.billing) {
-      operations.push(actorOperation(actor, {[upkeepPath]: plan.billing.state}), ...await anemicOperations(actor, plan.billing.state));
+      operations.push(actorOperation(actor, {[upkeepPath]: plan.billing.state}));
     }
     await commitOperations(operations);
     return {amount: formatAmount(plan.amount)};

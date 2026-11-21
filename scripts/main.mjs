@@ -7,7 +7,6 @@ import {creditIncome, executeTransaction, listenForTransactions, previewTransact
 import {immersiveRules, ruleCurrency} from "./immersive-rules.mjs";
 import {analyzeFormula} from "./economy-formulas.mjs";
 import {immersiveApi, registerImmersiveSettings, renderImmersive, startImmersiveIntegration} from "./immersive-ui.mjs";
-import {lifestyleEffects} from "./upkeep.mjs";
 import {createCurrencyMark} from "./currency-marks.mjs";
 import {registerTierAppearance, renderSheetTier, styleItemTier} from "./tier-appearance.mjs";
 import {automaticMoneyFlags} from "./money-flags.mjs";
@@ -24,7 +23,6 @@ Hooks.once("init", () => {
   game.settings.registerMenu(MODULE_ID, "currencyCatalog", {
     name: sbsI18n("swade-better-money.UI.CurrencyCatalog_028b036b91"),
     label: sbsI18n("swade-better-money.UI.OpenCurrencyCatalog_5b434d3453"),
-    hint: sbsI18n("swade-better-money.UI.Definecurrenciesdenominationsandexchangerates_9d84142227"),
     icon: "fa-solid fa-coins",
     type: CurrencyCatalog,
     restricted: true
@@ -86,8 +84,6 @@ function deriveSwadeCurrency() {
     else if (this.system.details && "currency" in this.system.details) {
       this.system.details.currency = primaryBalance(this);
     }
-    const bonus = this.system.bennies && lifestyleEffects(this)?.maxBennies;
-    if (bonus) this.system.bennies.max += bonus;
   };
 }
 

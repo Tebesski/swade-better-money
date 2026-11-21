@@ -55,25 +55,6 @@ export function upkeepState(actor) {
   return foundry.utils.deepClone(actor.getFlag(MODULE_ID, UPKEEP_FLAG) ?? {obligations: []});
 }
 
-export function lifestyleEffects(actor, state = upkeepState(actor)) {
-  if (!game.time?.calendar || !immersiveEnabled() || !state.activeLifestyle) return null;
-  const tier = immersiveRules().lifestyles.find(entry => entry.id === state.activeLifestyle.id);
-  if (!tier) return null;
-  const current = gamePeriod(state.activeLifestyle.paid).month === gamePeriod().month;
-  return {...tier, monthlyBennies: current ? tier.monthlyBennies : 0, maxBennies: current ? tier.maxBennies : 0};
-}
-
-export function lifestyleNotes(tier) {
-  if (!tier) return [];
-  return [
-    tier.noNaturalHealing && sbsI18n("swade-better-money.UI.CannotrecoverWoundsthroughNaturalHealing_d03d1848e5"),
-    tier.anemic && sbsI18n("swade-better-money.UI.GainstheAnemicHindrance_319b0580ab"),
-    tier.sessionFatigue && `Starts each session with ${tier.sessionFatigue} Fatigue.`,
-    tier.monthlyBennies && `May claim ${tier.monthlyBennies} bonus Bennie(s) this month.`,
-    tier.maxBennies && `Maximum Bennies increases by ${tier.maxBennies}.`
-  ].filter(Boolean);
-}
-
 function monthsDue(line, period) {
   const from = gamePeriod(line.since).month;
   const through = line.paid == null ? from - 1 : gamePeriod(line.paid).month;
@@ -204,32 +185,3 @@ export async function removeObligation(actor, id) {
   await actor.setFlag(MODULE_ID, UPKEEP_FLAG, state);
 }
 
-export function bennyAllowance(actor) {
-  const {monthlyBennies = 0} = lifestyleEffects(actor) ?? {};
-  const grant = actor.getFlag(MODULE_ID, "upkeepBennies");
-  const claimed = grant && gamePeriod(grant.when).month >= gamePeriod().month ? grant.count : 0;
-  return Math.max(0, monthlyBennies - claimed);
-}
-
-export async function anemicOperations(actor, state = upkeepState(actor)) {
-  const earned = lifestyleEffects(actor, state)?.anemic;
-  const managed = actor.items.filter(item => item.getFlag(MODULE_ID, "upkeepAnemic"));
-  if (!earned && managed.length) {
-    return [{documentName: "Item", parent: actor, action: "delete", ids: managed.map(item => item.id)}];
-  }
-  const existing = actor.items.some(item => item.type === "hindrance" &&
-    String(item.system.swid || item.name).toLowerCase() === "anemic");
-  if (!earned || existing || managed.length) return [];
-  const pack = game.packs.get("swade.hindrances");
-  const entry = pack?.visible && (await pack.getIndex({fields: ["system.swid"]}))
-    .find(item => item.system?.swid === "anemic" || item.name === "Anemic");
-  const official = entry && (await pack.getDocument(entry._id))?.toObject();
-  const {name, img, system, effects} = official || {
-    name: sbsI18n("swade-better-money.UI.Anemic_4455967e79"), img: "icons/svg/biohazard.svg",
-    system: {swid: "anemic", major: false, description: `<p>${sbsI18n("swade-better-money.UI.ThischaracterhastheSWADEAnemic_377c530d7a")}</p>`},
-    effects: []
-  };
-  return [{documentName: "Item", parent: actor, action: "create", data: [{
-    type: "hindrance", name, img, system, effects, flags: {[MODULE_ID]: {upkeepAnemic: true}}
-  }]}];
-}

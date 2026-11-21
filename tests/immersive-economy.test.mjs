@@ -11,11 +11,11 @@ test("purchase formulas give the expected basket average and range", () => {
   assert.deepEqual([2 * pocket.min + everyday.min, 2 * pocket.max + everyday.max], [24, 120]);
 });
 
-test("default gig and hustle rewards use the source ranges and failure fatigue", () => {
+test("default gig and hustle rewards use the source ranges without fatigue automation", () => {
   assert.deepEqual(DEFAULT_RULES.gigs.map(entry => analyzeFormula(entry.formula).mean), [600, 2100, 5100]);
   const {critical, failure, success, raise} = DEFAULT_RULES.hustles[0].outcomes;
   assert.deepEqual([critical, failure, success, raise].map(entry => analyzeFormula(entry.formula).mean), [0, 100, 350, 600]);
-  assert.equal(failure.fatigue, 1);
+  assert.equal(Object.hasOwn(failure, "fatigue"), false);
 });
 
 test("custom formulas calculate independent products and reject unsupported inputs", () => {

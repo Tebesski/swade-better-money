@@ -3,7 +3,7 @@ import {getCatalog, MODULE_ID, summarizeWallet} from "./catalog.mjs";
 import {formatAmount, safeUnits, SCALE, toUnits} from "./economy.mjs";
 import {analyzeFormula, formulaUnits, rollMoneyFormula} from "./economy-formulas.mjs";
 import {hustleLabel, immersiveEnabled, immersiveRules, OUTCOMES, ruleCurrency} from "./immersive-rules.mjs";
-import {bennyAllowance, gameClockTime, gamePeriod, invoices} from "./upkeep.mjs";
+import {gameClockTime, gamePeriod, invoices} from "./upkeep.mjs";
 import {
   actorOperation, commitOperations, creditIncome, executeTransaction, previewTransaction, withWalletLock
 } from "./wallet.mjs";
@@ -178,10 +178,7 @@ export function traitOutcome(roll) {
   return roll.total >= 8 ? "raise" : roll.total >= 4 ? "success" : "failure";
 }
 
-function fatigueUpdate(actor, amount) {
-  const fatigue = actor.system.fatigue;
-  return fatigue && amount > 0 ? {"system.fatigue.value": Math.min(fatigue.max + 1, fatigue.value + amount)} : {};
-}
+
 
 function usedHustleWeek(actor) {
   const previous = actor.getFlag(MODULE_ID, hustleFlag);
@@ -258,7 +255,7 @@ async function reserveHustle(actor, tier, outcome, currency, gmAward = false) {
       title: `${hustleLabel()} · ${tier.name}`, outcome, units, roll: roll?.toJSON() ?? null,
       description: tier.description, formula: result.formula, note: result.note
     };
-    await commitOperations([actorOperation(actor, {[hustlePath]: record, ...fatigueUpdate(actor, result.fatigue)})]);
+    await commitOperations([actorOperation(actor, {[hustlePath]: record})]);
     return record;
   });
   await postMoneyRoll(actor, record.title, [OUTCOMES[outcome], record.note].filter(Boolean).join(" · "));
@@ -267,7 +264,7 @@ async function reserveHustle(actor, tier, outcome, currency, gmAward = false) {
 
 export async function runHustle(actor, skill) {
   actor ??= canvas?.tokens?.controlled?.[0]?.actor ?? game.user.character;
-  if (!immersiveEnabled() || !actor?.isOwner || !actor.system.fatigue) {
+  if (!immersiveEnabled() || !actor?.isOwner || !["character", "npc"].includes(actor.type)) {
     throw new Error(sbsI18n("swade-better-money.UI.EnableImmersiveEconomyandselecta_8d665b59c5"));
   }
   if (openHustles.has(actor.uuid)) return;
@@ -317,7 +314,7 @@ async function awardGig(actor, tier, currency) {
 
 export async function awardSelected() {
   if (!game.user.isGM || !immersiveEnabled()) throw new Error(sbsI18n("swade-better-money.UI.TheGMcanawardrewardswhen_3c731db051"));
-  const actors = [...new Map((canvas?.tokens?.controlled ?? []).filter(token => token.actor?.system.fatigue)
+  const actors = [...new Map((canvas?.tokens?.controlled ?? []).filter(token => ["character", "npc"].includes(token.actor?.type))
     .map(token => [token.actor.uuid, token.actor])).values()];
   if (!actors.length) throw new Error(sbsI18n("swade-better-money.UI.Selectoneormorecharacteror_037566ddd9"));
   const currency = requireCurrency();
@@ -341,18 +338,5 @@ export async function awardSelected() {
       ui.notifications.error(`${actor.name}: ${error.message}`);
     }
   }
-}
-
-export async function claimUpkeepBenny(actor) {
-  return withWalletLock(async () => {
-    if (!actor.isOwner || !bennyAllowance(actor)) throw new Error(sbsI18n("swade-better-money.UI.NoupkeepBennieisavailablethis_d278ed6a7e"));
-    const previous = actor.getFlag(MODULE_ID, "upkeepBennies");
-    const count = previous && gamePeriod(previous.when).month === gamePeriod().month ? previous.count + 1 : 1;
-    await commitOperations([actorOperation(actor, {
-      "system.bennies.value": actor.bennies + 1,
-      [`flags.${MODULE_ID}.upkeepBennies`]: {when: gameClockTime(), count}
-    })]);
-    ui.notifications.info(sbsI18n("swade-better-money.UI.claimedanupkeepBennie_08132ffa7a", {p0: (actor.name)}));
-  });
 }
 

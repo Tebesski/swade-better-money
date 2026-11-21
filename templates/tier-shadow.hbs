@@ -1,0 +1,20 @@
+<div class="bm-tier-shadow-settings">
+  <label class="bm-tier-shadow-field">
+    {{localize "swade-better-money.UI.Shadowtype_92fb4ebdeb"}}
+    <select data-appearance="shadow">
+      {{#each shadows}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+    </select>
+  </label>
+  <div class="bm-tier-shadow-sample">
+    <strong class="bm-tier-shadow-preview">{{label}}</strong>
+    {{#each colours}}
+      <div class="bm-tier-shadow-field {{#if glitch}}bm-tier-glitch-field{{else}}bm-tier-shadow-colour{{/if}}">
+        <label for="bm-tier-{{key}}">{{label}}</label>
+        <div class="bm-tier-colour-picker" data-colour-field="{{key}}">
+          <input type="text" id="bm-tier-{{key}}" value="{{value}}" maxlength="7" spellcheck="false">
+          <input type="color" aria-label="Pick {{label}}" value="{{value}}">
+        </div>
+      </div>
+    {{/each}}
+  </div>
+</div>

@@ -1,0 +1,70 @@
+<form class="bm-tier-editor" autocomplete="off">
+  <nav class="bm-tier-categories" aria-label="{{localize "swade-better-money.UI.Tiercategories_7de6978026"}}">
+    {{#each categories}}
+      <button type="button" data-action="showCategory" data-category="{{key}}" aria-pressed="{{selected}}">{{label}}</button>
+    {{/each}}
+  </nav>
+
+  <div class="bm-tier-list">
+    {{#each tiers}}
+      <article class="bm-tier-card" data-tier="{{id}}" data-label="{{label}}" aria-label="{{label}}">
+        <div class="bm-tier-card-header">
+          <h2 class="bm-tier-title">{{label}}</h2>
+          <div class="bm-tier-name-colour">
+            <label class="bm-tier-field-label">
+              <input type="checkbox" data-appearance="useNameColour" {{checked style.useNameColour}}>
+              {{localize "swade-better-money.UI.Namecolour_a672745960"}}
+            </label>
+            <div class="bm-tier-colour-controls">
+              <select data-appearance="preset" aria-label="{{localize "swade-better-money.UI.Namecolourpreset_06357ccb25"}}">
+                <option value="">{{localize "swade-better-money.UI.Custom_494ca78f73"}}</option>
+                {{#each colours}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+              </select>
+              <div class="bm-tier-colour-picker" data-colour-field="nameColour">
+                <input type="text" aria-label="{{localize "swade-better-money.UI.Namecolourhex_3c28ba6e3c"}}" value="{{style.nameColour}}" maxlength="7" spellcheck="false">
+                <input type="color" aria-label="{{localize "swade-better-money.UI.Picknamecolour_dfff5f3668"}}" value="{{style.nameColour}}">
+              </div>
+            </div>
+          </div>
+          <div class="bm-tier-shadow-control">
+            <span class="bm-tier-field-label">{{localize "swade-better-money.UI.Shadow_4c764cb624"}}</span>
+            <button type="button" class="bm-tier-icon-button" data-action="editShadow" aria-label="{{localize "swade-better-money.UI.Textshadowsettings_616de33a11"}}">
+              <i class="fa-solid fa-gear" aria-hidden="true"></i>
+            </button>
+          </div>
+          <button type="button" class="bm-tier-icon-button bm-tier-reset" data-action="resetAppearance"
+                  aria-label="{{localize "swade-better-money.UI.Resettierappearance_13661f5718"}}" title="{{localize "swade-better-money.UI.Resettierappearance_13661f5718"}}">
+            <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="bm-tier-preview-strip">
+          <div class="bm-tier-border-controls">
+            <select data-appearance="border" aria-label="{{localize "swade-better-money.UI.Borderpreset_cdaf7c9ba2"}}">
+              {{#each borders}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+            </select>
+            <div data-colour-field="borderColour">
+              <input type="color" aria-label="{{localize "swade-better-money.UI.Bordercolour_6c9e0b997b"}}" title="{{localize "swade-better-money.UI.Bordercolour_6c9e0b997b"}}" value="{{style.borderColour}}">
+            </div>
+            <label class="bm-tier-inset-control">
+              <input type="checkbox" data-appearance="inset" {{checked style.inset}}>
+              {{localize "swade-better-money.UI.Inneraura_b8e69a30f0"}}
+            </label>
+          </div>
+          <div class="bm-tier-preview" aria-label="{{localize "swade-better-money.UI.Itemappearancepreview_bb0a8c3e92"}}">
+            <span class="bm-tier-preview-art"><img src="icons/equipment/head/helm-barbute-reinforced.webp" alt=""></span>
+            <strong class="bm-tier-preview-name">{{localize "swade-better-money.UI.ReinforcedHelmet_3046007b1a"}}</strong>
+          </div>
+        </div>
+      </article>
+    {{else}}
+      <p class="hint">{{localize "swade-better-money.UI.Noitemtiersareconfiguredin_20a681e3fa"}}</p>
+    {{/each}}
+  </div>
+
+  <footer class="bm-tier-footer">
+    <button type="submit" class="bright" {{#unless hasChanges}}disabled{{/unless}}>
+      <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> {{localize "swade-better-money.UI.SaveAppearance_3f546fa9d3"}}
+    </button>
+  </footer>
+</form>

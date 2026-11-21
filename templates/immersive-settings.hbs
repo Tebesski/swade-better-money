@@ -1,0 +1,50 @@
+<div class="money-workspace">
+  <form>
+    <fieldset>
+      <legend>{{localize "swade-better-money.UI.Preferences_66962f72a0"}}</legend>
+      <div class="money-fields">
+        <label class="money-field">{{localize "swade-better-money.UI.Rulescurrency_a16a712b46"}}
+          <select name="currencyId">
+            <option value="">{{localize "swade-better-money.UI.Yuanexample_719182dea4"}}</option>
+            {{#each currencies}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+          </select>
+        </label>
+        <label class="money-field">{{localize "swade-better-money.UI.SWADEHUDactivityname_1d7fe16e44"}} <input name="earnLabel" value="{{rules.earnLabel}}" placeholder="{{localize "swade-better-money.UI.Hustle_ffafaee5b6"}}"></label>
+      </div>
+      <label class="money-field">{{localize "swade-better-money.UI.Bargainingskills_fc0f8b0a2b"}} <input name="bargainTraits" value="{{rules.bargainTraits}}" required></label>
+      <p class="hint">{{localize "swade-better-money.UI.EnterskillnamesorSWADEIDs_5c0e3f7ee7"}}</p>
+      <div class="money-buttons">
+        <button type="submit">{{localize "swade-better-money.UI.SavePreferences_e5b8e6907f"}}</button>
+        <button type="button" data-action="installYuan">{{localize "swade-better-money.UI.InstallYuanExample_496ed2c139"}}</button>
+      </div>
+    </fieldset>
+  </form>
+  {{#each groups}}
+    <fieldset>
+      <legend>{{label}}</legend>
+      <ul class="money-list">
+        {{#each entries}}
+          <li>
+            <div class="money-grow"><strong>{{name}}</strong> {{#if formula}}· {{formula}}{{/if}}<small>{{description}}</small>
+              {{#if notes}}<small>{{notes}}</small>{{/if}}
+            </div>
+            <button type="button" data-action="editEntry" data-group="{{../id}}" data-id="{{id}}" aria-label="Edit {{name}}">
+              <i class="fa-solid fa-pen" aria-hidden="true"></i>
+            </button>
+            <button type="button" data-action="deleteEntry" data-group="{{../id}}" data-id="{{id}}" aria-label="Delete {{name}}">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+          </li>
+        {{/each}}
+      </ul>
+      <button type="button" data-action="editEntry" data-group="{{id}}">{{localize "swade-better-money.UI.AddEntry_b65440dcee"}}</button>
+    </fieldset>
+  {{/each}}
+  <fieldset>
+    <legend>{{localize "swade-better-money.UI.Macros_866dcd98ec"}}</legend>
+    <div class="money-buttons">
+      <button type="button" data-action="macro" data-macro="hustle">{{localize "swade-better-money.UI.Hustle_ffafaee5b6"}}</button>
+      <button type="button" data-action="macro" data-macro="refreshDue">{{localize "swade-better-money.UI.Refreshmonthlydue_e25091a781"}}</button>
+    </div>
+  </fieldset>
+</div>

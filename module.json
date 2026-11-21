@@ -1,0 +1,42 @@
+{
+   "id": "swade-better-money",
+   "title": "SWADE Better Money",
+   "description": "SWADE money system overhaul and automation.",
+   "version": "#{VERSION}#",
+   "compatibility": {
+      "minimum": "14.369",
+      "verified": "14.369",
+      "maximum": "14"
+   },
+   "relationships": {
+      "systems": [
+         {
+            "id": "swade",
+            "type": "system",
+            "compatibility": {
+               "minimum": "6.0.4",
+               "verified": "6.0.4"
+            }
+         }
+      ]
+   },
+   "esmodules": ["scripts/main.mjs"],
+   "styles": ["styles/money.css", "styles/tier-appearance.css"],
+   "languages": [
+      {
+         "lang": "en",
+         "name": "English",
+         "path": "lang/en.json"
+      }
+   ],
+   "documentTypes": {
+      "Item": {
+         "money": {
+            "htmlFields": ["description", "notes"]
+         }
+      }
+   },
+   "url": "#{URL}#",
+   "manifest": "#{MANIFEST}#",
+   "download": "#{DOWNLOAD}#"
+}

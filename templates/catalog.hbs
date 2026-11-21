@@ -1,0 +1,116 @@
+<div class="money-workspace">
+  <fieldset>
+    <legend>{{localize "swade-better-money.UI.Currencies_d079ee92c1"}}</legend>
+    <ul class="money-list">
+      {{#each currencies}}
+        <li>
+          <span class="better-money-currency-mark" aria-hidden="true">
+            {{#if mark.images}}
+              {{#each mark.images}}<img src="{{this}}" alt="">{{/each}}
+            {{else if mark.text}}{{mark.text}}
+            {{else}}<i class="fa-solid fa-coins"></i>{{/if}}
+          </span>
+          <span class="money-grow">{{name}} {{#if primary}}<span class="hint">{{localize "swade-better-money.UI.Primary_5a4368a406"}}</span>{{/if}}</span>
+          <button type="button" data-action="editCurrency" data-id="{{id}}" data-tooltip="{{localize "swade-better-money.UI.Editcurrency_17c40cb82a"}}" aria-label="Edit {{name}}">
+            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+          </button>
+          <button type="button" data-action="removeCurrency" data-id="{{id}}" data-tooltip="{{localize "swade-better-money.UI.Deletecurrency_32f316121c"}}" aria-label="Delete {{name}}">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+          </button>
+        </li>
+      {{else}}
+        <li class="hint">{{localize "swade-better-money.UI.Addacurrencytostartcreating_ee46609536"}}</li>
+      {{/each}}
+    </ul>
+    {{#if currency}}
+      <form data-money-form="currency" class="money-draft">
+        <div class="money-fields">
+          <label class="money-field">{{localize "swade-better-money.UI.Name_dcd1d5223f"}} <input name="name" value="{{currency.name}}" required></label>
+          <label class="money-field">{{localize "swade-better-money.UI.Textmarkupto3characters_e540862898"}} <input name="symbol" value="{{currency.symbol}}"></label>
+        </div>
+        <fieldset>
+          <legend>{{localize "swade-better-money.UI.CurrencyIcons_fea9d8c87a"}}</legend>
+          <p class="hint">{{localize "swade-better-money.UI.Chooseuptothreeimagesto_b0d5a52c5a"}}</p>
+          <label class="money-field">{{localize "swade-better-money.UI.Icon1_ed5fda7a27"}} <file-picker type="image" name="image" value="{{currency.image}}"></file-picker></label>
+          <label class="money-field">{{localize "swade-better-money.UI.Icon2_2d7fa7ade3"}} <file-picker type="image" name="image2" value="{{currency.image2}}"></file-picker></label>
+          <label class="money-field">{{localize "swade-better-money.UI.Icon3_f7e614a86f"}} <file-picker type="image" name="image3" value="{{currency.image3}}"></file-picker></label>
+        </fieldset>
+        <label><input type="checkbox" name="primary" {{checked currency.primary}}> {{localize "swade-better-money.UI.UseforSWADEsbuiltin_8b56fccab9"}}</label>
+        <div class="money-buttons">
+          <button type="submit">{{localize "swade-better-money.UI.SaveCurrency_a965104644"}}</button>
+          <button type="button" data-action="closeDraft" data-draft="currency">{{localize "swade-better-money.UI.Cancel_19766ed6cc"}}</button>
+        </div>
+      </form>
+    {{else}}
+      <button type="button" data-action="editCurrency"><i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "swade-better-money.UI.AddCurrency_524fb6b260"}}</button>
+    {{/if}}
+  </fieldset>
+
+  <fieldset>
+    <legend>{{localize "swade-better-money.UI.Denominations_28eded3876"}}</legend>
+    <ul class="money-list">
+      {{#each denominations}}
+        <li draggable="true" data-drag-denomination="{{id}}">
+          <img class="money-icon" src="{{img}}" alt="">
+          <span class="money-grow">{{label}} <span class="hint">({{currency}})</span></span>
+          <button type="button" data-action="editDenomination" data-id="{{id}}" aria-label="Edit {{label}}" data-tooltip="{{localize "swade-better-money.UI.Editdenomination_ac2c3e8ec9"}}">
+            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+          </button>
+        </li>
+      {{else}}
+        <li class="hint">{{localize "swade-better-money.UI.CreateanItemforeachbanknote_de57669f97"}}</li>
+      {{/each}}
+    </ul>
+    {{#if currencies.length}}
+      <div class="money-buttons">
+        <button type="button" data-action="addDenomination"><i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "swade-better-money.UI.AddDenomination_a2b55f53d6"}}</button>
+        <button type="button" data-action="openCompendium"><i class="fa-solid fa-book" aria-hidden="true"></i> {{localize "swade-better-money.UI.OpenCompendium_139418072b"}}</button>
+      </div>
+      {{#if denominations.length}}<p class="hint">{{localize "swade-better-money.UI.Dragadenominationontoanactor_0ba769a829"}}</p>{{/if}}
+    {{/if}}
+  </fieldset>
+
+  <fieldset>
+    <legend>{{localize "swade-better-money.UI.ExchangeRates_b6e136d4e5"}}</legend>
+    <ul class="money-list">
+      {{#each rates}}
+        <li>
+          <span class="money-grow">{{label}}</span>
+          <button type="button" data-action="editRate" data-from="{{from}}" data-to="{{to}}" aria-label="Edit {{label}}" data-tooltip="{{localize "swade-better-money.UI.Editrate_2bba4f7a12"}}">
+            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+          </button>
+          <button type="button" data-action="removeRate" data-from="{{from}}" data-to="{{to}}" aria-label="Delete {{label}}" data-tooltip="{{localize "swade-better-money.UI.Deleterate_5505a0eccd"}}">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+          </button>
+        </li>
+      {{else}}
+        <li class="hint">{{localize "swade-better-money.UI.Eachrateworksinbothdirections_7944a34624"}}</li>
+      {{/each}}
+    </ul>
+    {{#if rate}}
+      <form data-money-form="rate" class="money-draft">
+        <div class="money-rate">
+          <input type="number" min="0.000001" step="0.000001" name="fromAmount" value="{{rate.fromAmount}}" aria-label="{{localize "swade-better-money.UI.Firstamount_be4cd65ae7"}}" required>
+          <select name="from" aria-label="{{localize "swade-better-money.UI.Firstcurrency_42a2dba96f"}}" required>
+            <option value="">{{localize "swade-better-money.UI.Currency_3ac1a9ec4f"}}</option>
+            {{#each rate.fromChoices}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+          </select>
+          <span>=</span>
+          <input type="number" min="0.000001" step="0.000001" name="toAmount" value="{{rate.toAmount}}" aria-label="{{localize "swade-better-money.UI.Secondamount_6a7437a6ef"}}" required>
+          <select name="to" aria-label="{{localize "swade-better-money.UI.Secondcurrency_6b18db5757"}}" required>
+            <option value="">{{localize "swade-better-money.UI.Currency_3ac1a9ec4f"}}</option>
+            {{#each rate.toChoices}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+          </select>
+        </div>
+        <div class="money-buttons">
+          <button type="submit">{{localize "swade-better-money.UI.SaveExchangeRate_2f321c8688"}}</button>
+          <button type="button" data-action="closeDraft" data-draft="rate">{{localize "swade-better-money.UI.Cancel_19766ed6cc"}}</button>
+        </div>
+      </form>
+    {{else if canAddRate}}
+      <button type="button" data-action="editRate"><i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "swade-better-money.UI.AddRate_b2f40ab72e"}}</button>
+    {{/if}}
+  </fieldset>
+
+  <button type="button" data-action="installMacro"><i class="fa-solid fa-code" aria-hidden="true"></i> {{localize "swade-better-money.UI.CreateorOpenManageMoneyMacro_54bc1ec210"}}</button>
+</div>

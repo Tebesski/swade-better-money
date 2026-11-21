@@ -1,0 +1,410 @@
+.better-money button,
+.better-money-inventory button {
+  transition: none !important;
+  animation: none !important;
+}
+
+.better-money > .window-content {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.better-money .money-workspace {
+  display: grid;
+  gap: 0.75rem;
+  overflow: auto;
+  max-height: min(75vh, 740px);
+}
+
+.better-money fieldset,
+.better-money-inventory {
+  min-inline-size: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.better-money-inventory {
+  margin-block: 0.5rem;
+}
+
+.better-money .money-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 0.5rem;
+}
+
+.better-money .money-field,
+.better-money .money-draft {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+}
+
+.denomination-sheet .money-denomination-details {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.denomination-sheet .money-denomination-details :is(label, input, select) {
+  min-width: 0;
+}
+
+.better-money .money-draft {
+  padding-block: 0.5rem;
+}
+
+.better-money .money-rate {
+  display: grid;
+  grid-template-columns: minmax(60px, 1fr) minmax(80px, 1.5fr) auto minmax(60px, 1fr) minmax(80px, 1.5fr);
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.better-money .money-buttons,
+.better-money-inventory .money-inventory-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:is(.better-money, .better-money-inventory) .money-list,
+.better-money-inventory .money-balances {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+:is(.better-money, .better-money-inventory) .money-list > li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding-block: 0.25rem;
+}
+
+:is(.better-money, .better-money-inventory) .money-list > li + li {
+  border-top: 1px solid var(--color-fieldset-border, var(--color-border));
+}
+
+.better-money-inventory .money-balances {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+  gap: 0.4rem 0.8rem;
+}
+
+.better-money-inventory .money-balances > li,
+.better-money .money-output {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+:is(.better-money, .better-money-inventory) .money-grow {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.better-money-inventory small {
+  display: block;
+  color: var(--color-text-secondary);
+}
+
+.better-money-currency-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.12em;
+  flex: none;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.better-money-currency-mark > img,
+:is(.better-money, .better-money-inventory) .money-icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  object-fit: contain;
+  border: 0;
+}
+
+:is(.better-money, .better-money-inventory) .money-icon {
+  width: 2.25rem;
+  height: 1.8rem;
+}
+
+:is(.better-money, .better-money-inventory) .money-list button,
+.better-money-inventory .money-inventory-header button {
+  width: auto;
+  flex: none;
+}
+
+.better-money .denomination-art {
+  display: block;
+  width: 100%;
+  height: clamp(155px, 27vh, 280px);
+  object-fit: contain;
+  background: var(--input-background, var(--color-bg-option));
+  border: 1px solid var(--color-fieldset-border, var(--color-border));
+  border-radius: 4px;
+}
+
+.better-money .denomination-art[data-action] {
+  cursor: var(--cursor-pointer);
+}
+
+.better-money .money-preview[hidden] {
+  display: none;
+}
+
+.better-money .money-denomination-change,
+.better-money .money-change-summary {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.better-money .money-change-quantity {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.better-money .money-change-quantity input {
+  inline-size: 6rem;
+}
+
+.better-money .money-change-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 195px), 1fr));
+  gap: 0.4rem;
+  max-block-size: 13rem;
+  overflow: auto;
+  padding: 2px;
+}
+
+.better-money .money-change-options > .hint {
+  grid-column: 1 / -1;
+  margin: 0.25rem;
+}
+
+.better-money label.money-change-option {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.4rem;
+  border: 1px solid var(--color-fieldset-border, var(--color-border));
+  border-radius: 4px;
+  cursor: var(--cursor-pointer);
+}
+
+.better-money label.money-change-option:has(input:checked) {
+  border-color: var(--color-warm-2);
+  background: var(--color-bg-option);
+}
+
+.better-money .money-change-summary {
+  border-block-start: 1px solid var(--color-fieldset-border, var(--color-border));
+  padding-block-start: 0.5rem;
+}
+
+.better-money .money-change-summary[hidden] {
+  display: none;
+}
+
+.better-money.immersive-dialog > .window-content {
+  overflow: auto;
+  max-height: 75vh;
+}
+
+.better-money .immersion-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.better-money .immersion-line input[type="number"] {
+  flex: 0 0 4.5rem;
+  width: 4.5rem;
+}
+
+:is(.better-money, .immersive-upkeep) small {
+  display: block;
+  color: var(--color-text-secondary);
+}
+
+.immersive-upkeep .money-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.immersive-upkeep.tab:not(.active) {
+  display: none;
+}
+
+.better-money input[hidden] {
+  display: none;
+}
+
+.better-money .money-obligation-custom[hidden],
+.better-money [data-obligation-preset-cost][hidden] {
+  display: none;
+}
+
+.immersive-upkeep fieldset {
+  margin-block: 0.5rem;
+}
+
+.immersive-upkeep .money-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.immersive-upkeep .money-buttons > button {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+}
+
+body.game .bm-upkeep-calendar .simple-calendar .fsc-lc {
+  position: static;
+  display: block !important;
+  margin-block-start: 0.5rem;
+  width: 100%;
+}
+
+.bm-upkeep-calendar .form-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bm-upkeep-calendar .form-footer > button {
+  flex: 1 1 10rem;
+  white-space: normal;
+  height: auto;
+  min-height: 2rem;
+}
+
+.immersive-upkeep button[data-upkeep] {
+  border: 1px solid var(--button-border-color, var(--color-border-light-tertiary));
+  background: var(--button-background-color, var(--color-cool-5-50));
+  border-radius: 4px;
+  min-height: 2rem;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+}
+
+.swade-item-sheet .main-grid > .better-money-tier {
+  grid-column: 6 / 9;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+  gap: 0.35em;
+}
+
+.swade-item-sheet .main-grid > .better-money-tier ~ .item-detail.category {
+  grid-column-start: 9;
+}
+
+.swade-item-sheet .main-grid:has(> .better-money-tier) > :is(.item-detail.quantity, .item-detail.category) {
+  flex-wrap: nowrap;
+}
+
+.swade-item-sheet .better-money-tier > label {
+  white-space: nowrap;
+  line-height: normal;
+}
+
+.swade-item-sheet .better-money-tier > .form-fields {
+  align-self: stretch;
+  align-items: center;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.swade-item-sheet .better-money-tier select {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  block-size: 1.85em;
+  min-block-size: 0;
+  max-block-size: 100%;
+  margin: 0;
+  padding-block: 0;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+}
+
+.bm-bargain-window .money-workspace.bm-bargaining {
+  min-height: 0;
+  max-height: none;
+}
+
+.bm-bargaining [name="slider"] {
+  width: 100%;
+}
+
+.bm-bargain-offer,
+.bm-bargain-penalty {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bm-bargain-summary p {
+  margin-block: 0 0.25rem;
+}
+
+.bm-bargaining .bm-bargain-help {
+  margin-inline-start: 0.2rem;
+  cursor: pointer;
+}
+
+.bm-bargaining .bm-bargain-reroll {
+  display: inline-grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  padding: 0;
+  vertical-align: middle;
+  margin-inline-start: 0.2rem;
+}
+
+.bm-bargain-range {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.bm-bargain-shaded::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background: var(--bm-bargain-gradient);
+  pointer-events: none;
+}
+
+.bm-bargain-shaded input {
+  position: relative;
+  background: transparent;
+}
+
+.bm-bargain-shaded input::-webkit-slider-runnable-track {
+  background: transparent !important;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.bm-bargain-shaded input::-moz-range-track {
+  background: transparent !important;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.bm-bargaining-spectator :is(input, select):disabled {
+  opacity: 1;
+  filter: none;
+}

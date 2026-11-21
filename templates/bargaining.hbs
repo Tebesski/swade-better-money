@@ -1,0 +1,79 @@
+<div class="money-workspace bm-bargaining{{#if spectator}} bm-bargaining-spectator{{/if}}">
+  <header>
+    <h2>{{title}}</h2>
+  </header>
+  {{#if gm}}
+    <fieldset>
+      <legend>{{localize "swade-better-money.UI.GMdetails_087d144027"}}</legend>
+      <p>{{gm.negotiator}} · {{gm.attitude}} {{localize "swade-better-money.UI.Interval_f83a65baa3"}} <strong>{{gm.interval}}</strong></p>
+      <p>{{localize "swade-better-money.UI.Employerlimit_7e4be9c416"}} <strong>{{gm.limit}}</strong> ({{gm.limitFormula}})
+        {{#if gm.canRerollLimit}}<button type="button" class="bm-bargain-reroll" data-action="rerollLimit" aria-label="{{localize "swade-better-money.UI.RerollEmployerLimit_2abf634e1e"}}" title="{{localize "swade-better-money.UI.RerollEmployerLimit_2abf634e1e"}}"><i class="fa-solid fa-dice" aria-hidden="true"></i></button>{{/if}}
+      </p>
+      <p>{{localize "swade-better-money.UI.Baserewardformula_0ae58b13ec"}} {{gm.baseFormula}}</p>
+      <p>{{localize "swade-better-money.UI.Noticemodifier_17c33fd275"}} <strong>{{gm.noticeModifier}}</strong></p>
+      {{#if gm.penalty}}
+        <div class="bm-bargain-penalty">
+          <div>{{localize "swade-better-money.UI.Intervalsteps_eaacfe1a5e"}} <strong>{{gm.penalty.steps}}</strong></div>
+          <div>{{localize "swade-better-money.UI.Basepenalty_04a6fde973"}} <strong>{{gm.penalty.base}}</strong></div>
+          <div>{{localize "swade-better-money.UI.Employerlimitcheck_bbf1bdfefe"}} <strong>{{gm.penalty.limit}}</strong></div>
+          <div>{{localize "swade-better-money.UI.Propositionmodifier_43858b4c20"}} <strong>{{gm.penalty.final}}</strong></div>
+        </div>
+      {{/if}}
+      {{#if gm.flags}}<p>{{localize "swade-better-money.UI.Opposedrollflags_e2255aa5f0"}} {{gm.flags}}</p>{{/if}}
+    </fieldset>
+  {{/if}}
+  <fieldset>
+    <legend>{{localize "swade-better-money.UI.Proposition_1e868bdea6"}}</legend>
+    <div class="bm-bargain-summary">
+      <p>{{character}} {{localize "swade-better-money.UI.isnegotiatingthereward_2484d8d9b1"}}
+        <a role="button" tabindex="0" class="bm-bargain-help" data-action="bargainingHelp" aria-label="{{localize "swade-better-money.UI.HowBargainingWorks_1d7ffa287b"}}" title="{{localize "swade-better-money.UI.HowBargainingWorks_1d7ffa287b"}}"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></a>
+      </p>
+      <p><strong>{{localize "swade-better-money.UI.Reward_b64f8fabf5"}}</strong> {{baseText}} + <span data-offer-extra>{{extraText}}</span> = <output data-offer-total aria-live="polite">{{requestedText}}</output></p>
+    </div>
+    {{#if result}}
+      <p>{{localize "swade-better-money.UI.Negotiationroll_4ddd4afaa3"}} <strong>{{resultText}}</strong></p>
+      <p>{{localize "swade-better-money.UI.Finalreward_83cd3de547"}} <strong>{{rewardText}}</strong></p>
+    {{else if closed}}
+      <p>{{localize "swade-better-money.UI.Thisbargaininginvitationisclosed_31cc09a40f"}}</p>
+    {{else}}
+      <form class="bm-bargain-offer">
+        <div class="bm-bargain-range{{#if gradient}} bm-bargain-shaded{{/if}}" {{#if gradient}}style="--bm-bargain-gradient: {{gradient}}"{{/if}}>
+          <input type="range" name="slider" aria-label="{{localize "swade-better-money.UI.Extrareward_0135ddf1f6"}}" min="0" max="{{maxAmount}}" step="{{sliderStep}}" value="{{extra}}" {{#if readOnlyOffer}}disabled{{else if locked}}disabled{{/if}}>
+        </div>
+        <div class="money-fields">
+          <label class="money-field">{{localize "swade-better-money.UI.Extrareward_0135ddf1f6"}}
+            <input type="number" name="extra" min="0" max="{{maxAmount}}" step="0.000001" value="{{extra}}" {{#if readOnlyOffer}}disabled{{else if locked}}readonly{{/if}}>
+          </label>
+          <label class="money-field">{{localize "swade-better-money.UI.Negotiationskill_d645c2e074"}}
+            <select name="skill" {{#if readOnlyOffer}}disabled{{/if}}>
+              {{#each skills}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+            </select>
+          </label>
+        </div>
+        {{#if noticeResolved}}
+          <p>{{localize "swade-better-money.UI.Noticecheckcomplete_c22551b5aa"}}</p>
+          {{#if hintText}}<p class="hint">{{hintText}}</p>{{/if}}
+        {{/if}}
+        {{#if noticeError}}<p role="alert">{{noticeError}}</p>{{/if}}
+        <div class="money-buttons">
+          {{#if canRollNotice}}
+            <button type="button" data-action="notice" {{#if pending}}disabled{{/if}}><i class="fa-solid fa-eye" aria-hidden="true"></i> {{localize "swade-better-money.UI.RollNotice_1caa4f1214"}}</button>
+          {{/if}}
+          {{#unless spectator}}<button type="button" data-action="bargain" disabled><i class="fa-solid fa-dice" aria-hidden="true"></i> {{localize "swade-better-money.UI.MakeOffer_e3fb68bb39"}}</button>{{/unless}}
+        </div>
+      </form>
+      {{#if rolling}}<p role="status">{{localize "swade-better-money.UI.Waitingforthenegotiatorsroll_9e540ad4af"}}</p>{{/if}}
+    {{/if}}
+  </fieldset>
+  {{#if gm}}
+    <div class="money-buttons">
+      {{#if finished}}
+        <button type="button" data-action="newBargain">{{localize "swade-better-money.UI.StartNewBargain_fbae374070"}}</button>
+      {{else}}
+        <button type="button" data-action="reopenPlayer">{{localize "swade-better-money.UI.ReopenforPlayer_a52a7460dc"}}</button>
+        <button type="button" data-action="cancelBargain">{{localize "swade-better-money.UI.CancelBargaining_2182c6545d"}}</button>
+      {{/if}}
+    </div>
+  {{/if}}
+  {{#unless spectator}}{{#if error}}<p role="alert">{{error}}</p>{{/if}}{{/unless}}
+</div>

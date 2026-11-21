@@ -1,0 +1,133 @@
+<div class="money-workspace">
+  {{#*inline "currencyMark"}}
+    <span class="better-money-currency-mark" aria-hidden="true">
+      {{#if images}}
+        {{#each images}}<img src="{{this}}" alt="">{{/each}}
+      {{else if text}}{{text}}
+      {{else}}<i class="fa-solid fa-coins"></i>{{/if}}
+    </span>
+  {{/inline}}
+  <fieldset>
+    <legend>{{localize "swade-better-money.UI.Wallet_d1c9a01d57"}}</legend>
+    <ul class="money-list">
+      {{#each totals}}
+        <li>
+          {{> currencyMark mark}}
+          <span class="money-grow">{{currency.name}}</span>
+          <strong>{{amount}}</strong>
+        </li>
+      {{else}}
+        <li class="hint">{{localize "swade-better-money.UI.AskyourGMtoaddcurrencies_7928a754aa"}}</li>
+      {{/each}}
+    </ul>
+  </fieldset>
+
+  {{#if currencies.length}}
+    <form>
+      <fieldset {{#if busy}}disabled{{/if}}>
+        <legend>{{#if denominationChange}}{{localize "swade-better-money.UI.ChangeDenominations_9abe1d0277"}}{{else}}{{localize "swade-better-money.UI.Transaction_eec26ddd9a"}}{{/if}}</legend>
+        <div class="money-fields">
+          <label class="money-field">{{localize "swade-better-money.UI.Operation_0f044feb6c"}}
+            <select name="action">
+              {{#each modes}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+            </select>
+          </label>
+          <label class="money-field">{{localize "swade-better-money.UI.Currency_3ac1a9ec4f"}}
+            <select name="currencyId" required>
+              {{#each currencies}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+            </select>
+          </label>
+        </div>
+        {{#if isBreak}}
+          <label class="money-field">{{localize "swade-better-money.UI.Denominationtobreak_b2eb0b2692"}}
+            <select name="source" {{#unless sources.length}}disabled{{/unless}} required>
+              {{#unless sources.length}}<option value="">{{localize "swade-better-money.UI.Nostacksavailable_5cad0be48b"}}</option>{{/unless}}
+              {{#each sources}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+            </select>
+          </label>
+        {{/if}}
+        {{#if isCombine}}
+          <label class="money-field">{{localize "swade-better-money.UI.Denominationtoreceive_db7f74a208"}}
+            <select name="denomination" {{#unless combineTargets.length}}disabled{{/unless}}>
+              {{#unless combineTargets.length}}<option value="">{{localize "swade-better-money.UI.Nodenominationsavailable_8f74cc6fc8"}}</option>{{/unless}}
+              {{#each combineTargets}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+            </select>
+          </label>
+        {{/if}}
+        {{#if immersiveSpend}}
+          <button type="button" data-action="planSpending"><i class="fa-solid fa-calculator" aria-hidden="true"></i> {{localize "swade-better-money.UI.PlanSpending_3fa5ba6098"}}</button>
+        {{else if denominationChange}}
+          <div class="money-denomination-change">
+            <label class="money-field money-change-quantity">{{#if isBreak}}{{localize "swade-better-money.UI.Piecestobreak_26fa99097b"}}{{else}}{{localize "swade-better-money.UI.Piecestomake_8801f93cfe"}}{{/if}}
+              <input name="quantity" type="number" min="1" step="1" value="{{state.quantity}}" required
+                {{#if isBreak}}{{#if source}}max="{{source.count}}"{{else}}disabled{{/if}}{{/if}}>
+            </label>
+            <fieldset>
+              <legend>{{#if isBreak}}{{localize "swade-better-money.UI.Choosewhattoreceive_b6341750fc"}}{{else}}{{localize "swade-better-money.UI.Choosewhichpiecestouse_c2df24a2b6"}}{{/if}}</legend>
+              <div class="money-change-options"></div>
+            </fieldset>
+            <div class="money-change-summary" aria-live="polite" hidden></div>
+            <button type="button" data-action="apply" disabled>
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              {{#if isBreak}}{{localize "swade-better-money.UI.BreakDenomination_455a5416a5"}}{{else}}{{localize "swade-better-money.UI.CombineDenominations_5e87619274"}}{{/if}}
+            </button>
+          </div>
+        {{else}}
+          <label class="money-field">{{localize "swade-better-money.UI.Amount_49e96d7cdf"}}
+            <input name="amount" type="number" min="0.000001" step="0.000001" value="{{state.amount}}" required>
+          </label>
+        {{/if}}
+        {{#if isTransfer}}
+          <label class="money-field">{{localize "swade-better-money.UI.Recipient_51fac985e9"}}
+            <select name="target" required>
+              <option value="">{{localize "swade-better-money.UI.Chooseplayercharacter_4c7b2fe4ca"}}</option>
+              {{#each recipients}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+            </select>
+          </label>
+        {{/if}}
+        {{#if isExchange}}
+          <label class="money-field">{{localize "swade-better-money.UI.Exchangeinto_fdb5e02f16"}}
+            <select name="exchangeCurrency" required>
+              <option value="">{{localize "swade-better-money.UI.Choosecurrency_138f4d7fd9"}}</option>
+              {{#each destinations}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+            </select>
+          </label>
+          {{#unless destinations.length}}<p class="hint">{{localize "swade-better-money.UI.Noexchangerateisconfiguredfor_25f081c260"}}</p>{{/unless}}
+        {{/if}}
+        {{#unless immersiveSpend}}
+          {{#unless denominationChange}}
+            <button type="submit"><i class="fa-solid fa-calculator" aria-hidden="true"></i> {{localize "swade-better-money.UI.Preview_324b134f57"}}</button>
+          {{/unless}}
+        {{/unless}}
+      </fieldset>
+    </form>
+  {{/if}}
+
+  {{#*inline "pieces"}}
+    <ul class="money-list">
+      {{#each this}}
+        <li><img class="money-icon" src="{{img}}" alt=""><span>{{count}} × {{name}}</span></li>
+      {{/each}}
+    </ul>
+  {{/inline}}
+  {{#if preview}}
+    <fieldset class="money-preview">
+      <legend>{{localize "swade-better-money.UI.Review_aff0766a52"}}</legend>
+      <strong>{{localize "swade-better-money.UI.Takenfromwallet_d553653a9c"}}</strong>
+      {{> pieces preview.debit}}
+      {{#if preview.change}}
+        <strong>{{localize "swade-better-money.UI.Changereturned_a78d5715dd"}}</strong>
+        {{> pieces preview.change}}
+      {{/if}}
+      {{#if preview.payout}}
+        <strong>{{#if preview.recipient}}{{localize "swade-better-money.UI.Paidto_c624785e4f"}} {{preview.recipient}}{{else}}{{localize "swade-better-money.UI.Addedtowallet_1fcf1f3a68"}}{{/if}}</strong>
+        <div class="money-output">
+          {{> currencyMark preview.outputMark}}
+          {{preview.received}} {{preview.outputName}}
+        </div>
+        {{> pieces preview.payout}}
+      {{/if}}
+      <button type="button" data-action="apply"><i class="fa-solid fa-check" aria-hidden="true"></i> {{localize "swade-better-money.UI.ConfirmTransaction_316239e9fe"}}</button>
+    </fieldset>
+  {{/if}}
+</div>

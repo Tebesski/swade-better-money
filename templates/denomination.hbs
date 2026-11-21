@@ -1,0 +1,50 @@
+<div class="money-workspace">
+  <div class="money-denomination-art">
+    <img class="denomination-art" src="{{item.img}}" alt="{{item.name}}"
+      {{#if editable}}data-action="editImage" data-edit="img" data-tooltip="{{localize "swade-better-money.UI.Choosedenominationimage_9599e162a0"}}"{{/if}}>
+  </div>
+  <fieldset {{#unless editable}}disabled{{/unless}}>
+    <legend>{{localize "swade-better-money.UI.Denomination_31f78c0857"}}</legend>
+    <label class="money-field">{{localize "swade-better-money.UI.Name_dcd1d5223f"}} <input name="name" value="{{item.name}}" required></label>
+    <div class="money-fields">
+      <label class="money-field">{{localize "swade-better-money.UI.Currency_3ac1a9ec4f"}}
+        <select name="system.currencyId" {{#unless defineValue}}disabled{{/unless}}>
+          <option value="">{{localize "swade-better-money.UI.Choosecurrency_138f4d7fd9"}}</option>
+          {{#each currencies}}
+            <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label class="money-field">{{localize "swade-better-money.UI.Facevalue_1b00583a16"}}
+        <select name="system.price" {{#unless defineValue}}disabled{{/unless}} required>
+          {{#each faceValues}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+          {{#if defineValue}}<option value="custom">{{localize "swade-better-money.UI.Custom_c4e69d543a"}}</option>{{/if}}
+        </select>
+      </label>
+    </div>
+    <div class="money-fields money-denomination-details">
+      <label class="money-field">{{localize "swade-better-money.UI.Tier1ishighest_0fb658b258"}}
+        <select name="system.tier" {{#unless defineValue}}disabled{{/unless}} required>
+          {{#each denominationTiers}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>{{/each}}
+          {{#if defineValue}}<option value="custom">{{localize "swade-better-money.UI.Custom_c4e69d543a"}}</option>{{/if}}
+        </select>
+      </label>
+      <label class="money-field">{{localize "swade-better-money.UI.Quantity_822bab8d41"}}
+        <input type="number" name="system.quantity" min="1" step="1" value="{{system.quantity}}" required>
+      </label>
+      <label class="money-field">{{localize "swade-better-money.UI.Weightperpiece_329acb5c57"}}
+        <input type="number" name="system.weight" min="0" step="any" value="{{system.weight}}" {{#unless defineValue}}disabled{{/unless}} required>
+      </label>
+    </div>
+    <label class="money-field">{{localize "swade-better-money.UI.Description_526e0087cc"}} <textarea name="system.description" rows="3">{{system.description}}</textarea></label>
+    {{#if showFlags}}
+      <label class="money-field">{{localize "swade-better-money.UI.Flags_f38d9950af"}}
+        <input type="text" name="betterEffectsFlags" value="{{customFlags}}" placeholder="{{localize "swade-better-money.UI.egmarkedcounterfeit_1a45f592d8"}}">
+      </label>
+      {{#if automaticFlags}}<small class="hint">{{localize "swade-better-money.UI.Automaticflags_bbbbcfb307"}} {{automaticFlags}}</small>{{/if}}
+    {{/if}}
+  </fieldset>
+  {{#if showSave}}
+    <button type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> {{localize "swade-better-money.UI.SaveDenomination_0ab01c5e4d"}}</button>
+  {{/if}}
+</div>

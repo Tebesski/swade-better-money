@@ -12,6 +12,7 @@ import {registerTierAppearance, renderSheetTier, styleItemTier} from "./tier-app
 import {automaticMoneyFlags} from "./money-flags.mjs";
 import {registerBargaining} from "./bargaining.mjs";
 import {refreshMonthlyDue} from "./expense-dialog.mjs";
+import {distributeMoney, installDistributionMacro} from "./distribute-money.mjs";
 
 Hooks.once("init", () => {
   if (game.system.id !== "swade") return;
@@ -38,6 +39,7 @@ Hooks.once("init", () => {
   game.modules.get(MODULE_ID).api = {
     open: openMoney,
     refreshMonthlyDue,
+    distributeMoney,
     preview: previewTransaction,
     execute: executeTransaction,
     balances: summarizeWallet,
@@ -62,6 +64,7 @@ Hooks.once("ready", () => {
   restrictDenominationSheets();
   listenForTransactions();
   startImmersiveIntegration(refreshActorSheets);
+  void installDistributionMacro().catch(reportError);
   Hooks.on("renderApplicationV2", renderMoney);
   Hooks.on("renderApplicationV2", renderImmersive);
   Hooks.on("renderApplicationV2", renderSheetTier);

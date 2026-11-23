@@ -5,6 +5,7 @@ import {prepareBilling, prepareExpenses, upkeepPath} from "./upkeep.mjs";
 import {combineOptions, lowerDenominations, planDenominationChange} from "./denomination-change.mjs";
 import {BETTER_EFFECTS, storedMoneyFlags} from "./money-flags.mjs";
 import {immersiveEnabled, ruleCurrency} from "./immersive-rules.mjs";
+import {randomMoneyDistribution} from "./random-money.mjs";
 
 const requestFlag = "transactionRequest";
 const responseFlag = "transactionResponse";
@@ -231,6 +232,21 @@ export async function creditIncome(actor, currencyId, amount, prepareUpdate = ()
     if (changes) operations.push(actorOperation(actor, changes));
     await commitOperations(operations);
     return payout;
+  });
+}
+
+export function creditRandomMoney(actors, currencyId, amount) {
+  return withWalletLock(async () => {
+    if (!game.user.isGM || !actors.length || actors.some(actor => !actor.isOwner)) throw new Error("A GM must own all recipient actors.");
+    if (new Set(actors.map(actor => actor.uuid)).size !== actors.length) throw new Error("Choose distinct recipient inventories.");
+    if (!getCatalog().currencies.some(currency => currency.id === currencyId)) throw new Error("Choose an available currency.");
+    const market = (await getDenominations()).filter(piece => piece.currencyId === currencyId);
+    const payouts = randomMoneyDistribution(amount, market, actors.length);
+    const operations = actors.flatMap((actor, index) => buildOperations(actor, {
+      debit: [], change: [], payout: payouts[index], target: actor
+    }));
+    if (operations.length) await commitOperations(operations);
+    return payouts;
   });
 }
 

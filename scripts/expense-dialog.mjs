@@ -1,10 +1,23 @@
 import {t as sbsI18n, a as sbsI18nAttribute} from "./i18n.mjs";
 import {getHoldings} from "./catalog.mjs";
 import {formatAmount, safeUnits, toUnits} from "./economy.mjs";
-import {invoices, setExpenseDues} from "./upkeep.mjs";
+import {invoices, setExpenseDues, setExpenseMonthlyCost} from "./upkeep.mjs";
 import {ruleCurrency} from "./immersive-rules.mjs";
 import {dialogClasses, escape, formDialog, selectOptions} from "./immersive-actions.mjs";
 import {executeTransaction, expenseWallets, previewTransaction, withWalletLock} from "./wallet.mjs";
+
+export async function editMonthlyCost(actor, id) {
+  if (!actor.isOwner) return;
+  const row = invoices(actor).find(line => line.id === id);
+  if (!row) throw new Error("This expense is no longer available.");
+  const currency = ruleCurrency();
+  const data = await formDialog("Monthly cost · " + row.name,
+    `<label class="money-field">Monthly cost (${escape(currency?.symbol ?? "")})
+      <input name="amount" type="number" min="0" step="0.000001" value="${row.cost}"></label>
+      <p>This price applies to ${escape(actor.name)}. Leave it blank to use the preset or original obligation price. Existing dues can be edited separately in Manage expenses.</p>`, "Save");
+  if (!data || data === "cancel") return;
+  await withWalletLock(() => setExpenseMonthlyCost(actor, id, data.amount));
+}
 
 export async function manageExpenses(actor) {
   if (!game.user.isGM) return;

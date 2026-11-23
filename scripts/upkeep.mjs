@@ -69,12 +69,12 @@ export function invoices(actor, state = upkeepState(actor)) {
     const preset = rules.obligations.find(entry => entry.id === line.presetId);
     return {
       ...line, kind: "obligation", name: line.name || preset?.name,
-      description: line.description || preset?.description, cost: preset ? analyzeFormula(preset.formula).min : line.cost
+      description: line.description || preset?.description, cost: line.monthlyCost ?? (preset ? analyzeFormula(preset.formula).min : line.cost)
     };
   });
   if (lifestyle) rows.unshift({
     ...state.lifestyle, id: "lifestyle", kind: "lifestyle", name: lifestyle.name,
-    description: lifestyle.description, cost: analyzeFormula(lifestyle.formula).min
+    description: lifestyle.description, cost: state.lifestyle.monthlyCost ?? analyzeFormula(lifestyle.formula).min
   });
   return rows.map(line => {
     const count = line.dueMonths ?? monthsDue(line, period);
@@ -159,6 +159,22 @@ export async function configureLifestyle(actor, tierId) {
   if (!immersiveRules().lifestyles.some(entry => entry.id === tierId)) throw new Error(sbsI18n("swade-better-money.UI.Chooseanupkeeptier_fe628bb00a"));
   if (state.lifestyle?.id === tierId) return;
   state.lifestyle = {...state.lifestyle, id: tierId, since: state.lifestyle?.since ?? gameClockTime()};
+  delete state.lifestyle.monthlyCost;
+  await actor.setFlag(MODULE_ID, UPKEEP_FLAG, state);
+}
+
+export async function setExpenseMonthlyCost(actor, id, amount) {
+  if (!actor.isOwner) throw new Error("You must own this character to edit its expenses.");
+  const state = upkeepState(actor);
+  const row = invoices(actor, state).find(line => line.id === id);
+  if (!row) throw new Error("This expense is no longer available.");
+  const entry = row.kind === "lifestyle" ? state.lifestyle : state.obligations.find(line => line.id === id);
+  // Monthly rate changes apply to future charges. Preserve the current outstanding balance.
+  entry.dueUnits = row.units;
+  entry.dueMonths = row.count;
+  delete entry.partialUnits;
+  if (amount === "") delete entry.monthlyCost;
+  else entry.monthlyCost = toUnits(amount) / 1_000_000;
   await actor.setFlag(MODULE_ID, UPKEEP_FLAG, state);
 }
 
@@ -174,6 +190,10 @@ export async function saveObligation(actor, form, id) {
     description: String(form.description ?? "").trim() || preset?.description || "",
     cost, since: previous?.since ?? gameClockTime()
   };
+  if (previous && previous.presetId !== entry.presetId) {
+    delete entry.monthlyCost;
+    delete previous.monthlyCost;
+  }
   if (previous) Object.assign(previous, entry);
   else state.obligations.push(entry);
   await actor.setFlag(MODULE_ID, UPKEEP_FLAG, state);

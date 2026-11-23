@@ -15,7 +15,7 @@ import {
 } from "./upkeep.mjs";
 import {creditIncome, withWalletLock} from "./wallet.mjs";
 import {synchroniseUpkeep} from "./upkeep-calendar.mjs";
-import {payExpenses, manageExpenses} from "./expense-dialog.mjs";
+import {payExpenses, manageExpenses, editMonthlyCost} from "./expense-dialog.mjs";
 
 const {ApplicationV2, DialogV2, HandlebarsApplicationMixin} = foundry.applications.api;
 const GROUPS = {
@@ -300,7 +300,7 @@ function renderUpkeep(app, root, actor) {
       ${actor.isOwner ? `<label class="money-field">${sbsI18n("swade-better-money.UI.Lifestyle_2e6c28eb66")}
         <select data-upkeep-tier><option value="">${sbsI18n("swade-better-money.UI.Chooseupkeep_fb31081182")}</option>${selectOptions(lifestyles, state.lifestyle?.id)}</select>
       </label>` : ""}
-      ${pending ? `<p>${sbsI18n("swade-better-money.UI.permonth_6140225a53", {p0: (escape(pending.name)), p1: (escape(moneyText(Math.round(analyzeFormula(pending.formula).min * 1e6), currency)))})}</p>
+      ${pending ? `<p>${sbsI18n("swade-better-money.UI.permonth_6140225a53", {p0: (escape(pending.name)), p1: (escape(moneyText(Math.round(rows.find(row => row.id === "lifestyle").cost * 1e6), currency)))})}</p>
         <p class="hint">${escape(pending.description)}</p>` : ""}
     </fieldset>
     <fieldset><legend>${sbsI18n("swade-better-money.UI.MonthlyCharges_4b674507b6")}</legend>
@@ -308,7 +308,8 @@ function renderUpkeep(app, root, actor) {
       <ul class="money-list">${rows.map(row => `<li>
         <div class="money-grow"><strong>${escape(row.name)}</strong>: ${escape(currency?.symbol ?? "")}${escape(row.monthly)}
           <small>${sbsI18n("swade-better-money.UI.monthsdue_fc78add8e4", {p0: (row.count), p1: (escape(currency?.symbol ?? "")), p2: (escape(row.due))})}</small>
-        </div>${actor.isOwner && row.kind === "obligation" ? `
+        </div>${actor.isOwner ? `<button type="button" data-upkeep="monthlyCost" data-id="${escape(row.id)}" aria-label="Edit monthly cost for ${escape(row.name)}" data-tooltip="Edit monthly cost"><i class="fa-solid fa-coins" aria-hidden="true"></i></button>` : ""}
+        ${actor.isOwner && row.kind === "obligation" ? `
           <button type="button" data-upkeep="edit" data-id="${escape(row.id)}" aria-label="${sbsI18nAttribute("swade-better-money.UI.Edit_58bd1ac6da", {p0: (escape(row.name))})}"><i class="fa-solid fa-pen"></i></button>
           <button type="button" data-upkeep="remove" data-id="${escape(row.id)}" aria-label="${sbsI18nAttribute("swade-better-money.UI.Remove_55fbe40120", {p0: (escape(row.name))})}"><i class="fa-solid fa-trash"></i></button>` : ""}
       </li>`).join("") || `<li class='hint'>${sbsI18n("swade-better-money.UI.Nomonthlycharges_30f9dc7f49")}</li>`}</ul>
@@ -332,6 +333,7 @@ function renderUpkeep(app, root, actor) {
       case "sync": void run(() => synchroniseUpkeep(actor)); break;
       case "pay": void run(() => payExpenses(actor)); break;
       case "manage": void run(() => manageExpenses(actor)); break;
+      case "monthlyCost": void run(() => editMonthlyCost(actor, button.dataset.id)); break;
       case "remove": void run(() => withWalletLock(() => removeObligation(actor, button.dataset.id))); break;
       case "add":
       case "edit": void run(async () => {

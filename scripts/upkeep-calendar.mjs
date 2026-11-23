@@ -51,7 +51,10 @@ export async function synchroniseUpkeep(actor) {
   let category = categories.find(entry => entry.name.toLowerCase() === "lifestyle");
   if (!category) {
     category = {id: foundry.utils.randomID(), name: sbsI18n("swade-better-money.UI.Lifestyle_2e6c28eb66"), color: "#4f9f77", textColor: "#ffffff"};
-    if (!await api.configureCalendar({noteCategories: [...categories, category]}, config.id)) throw new Error(sbsI18n("swade-better-money.UI.CouldnotcreatetheLifestylecategory_1dcca92ec1"));
+    // Simple Calendar loads a complete configuration here and resets omitted year/date fields.
+    const updatedConfig = foundry.utils.deepClone(config);
+    updatedConfig.noteCategories = [...(updatedConfig.noteCategories ?? []), category];
+    if (!await api.configureCalendar(updatedConfig, config.id)) throw new Error(sbsI18n("swade-better-money.UI.CouldnotcreatetheLifestylecategory_1dcca92ec1"));
   }
   const viewers = game.users.filter(user => user.isGM || actor.testUserPermission(user, "OWNER", {exact: true})).map(user => user.id);
   const currency = ruleCurrency();

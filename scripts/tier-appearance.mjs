@@ -1,7 +1,7 @@
 import {t as sbsI18n} from "./i18n.mjs";
 import {getDenominations, MODULE_ID, MONEY_TYPE} from "./catalog.mjs";
 import {immersiveRules, purchaseTierId} from "./immersive-rules.mjs";
-import {BORDER_EFFECTS, borderArt, hasAppearance, NAME_COLOURS, normalizeAppearance, SHADOW_EFFECTS} from "./tier-presets.mjs";
+import {BORDER_EFFECTS, hasAppearance, NAME_COLOURS, normalizeAppearance, SHADOW_EFFECTS} from "./tier-presets.mjs";
 
 const KEY = "tierAppearance";
 const {ApplicationV2, DialogV2, HandlebarsApplicationMixin} = foundry.applications.api;
@@ -42,9 +42,7 @@ function applyAppearance(style, {icon, name}) {
     frame.style.insetBlockEnd = `calc(-1 * ${portraitStyle.marginBlockStart})`;
     frame.style.borderRadius = portraitStyle.borderRadius;
   });
-  const art = borderArt(style.border);
-  if (art) frame.style.setProperty("--bm-tier-border-art", `url("/modules/${MODULE_ID}/assets/tier-borders/${art}.webp")`);
-  else frame.style.removeProperty("--bm-tier-border-art");
+
 }
 
 export function styleItemTier(item, parts) {

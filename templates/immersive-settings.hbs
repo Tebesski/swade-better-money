@@ -24,7 +24,8 @@
       <legend>{{label}}</legend>
       <ul class="money-list">
         {{#each entries}}
-          <li>
+          <li draggable="true" data-rule-id="{{id}}" data-rule-group="{{../id}}">
+            <i class="fa-solid fa-grip-vertical bm-rule-grip" aria-hidden="true"></i>
             <div class="money-grow"><strong>{{name}}</strong> {{#if formula}}· {{formula}}{{/if}}<small>{{description}}</small>
               {{#if notes}}<small>{{notes}}</small>{{/if}}
             </div>

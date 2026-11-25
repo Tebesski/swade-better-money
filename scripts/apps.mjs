@@ -34,7 +34,7 @@ function planLines(pieces) {
 export class CurrencyCatalog extends App {
   static DEFAULT_OPTIONS = {
     id: "better-money-catalog",
-    classes: ["swade", "better-money", "sbs-standard-swade-sheet"],
+    classes: ["swade", "better-money", "sbs-standard-swade-sheet", "bm-settings-window"],
     window: {get title() { return sbsI18n("swade-better-money.UI.BetterMoneyCurrencyCatalog_108caa766e"); }, icon: "fa-solid fa-coins", resizable: true},
     position: {width: 670, height: 680},
     actions: {

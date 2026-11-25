@@ -237,12 +237,6 @@
 
 :where(.bm-tier-icon) { position: relative; }
 
-.sgi-item-grid.bm-tier-icon,
-.sgi-item-slot.bm-tier-icon,
-.item-img-container.bm-tier-icon,
-.swade-hud-element .image.bm-tier-icon,
-#swade-hud-shortcut-tooltip .image.bm-tier-icon { --bm-tier-art-bleed: 0%; }
-
 /* Keep the frame in the artwork layer, below the HUD's shortcut badges. */
 #swade-hud-persistent [data-panel="shortcuts"] .shortcut > .image.bm-tier-icon {
   isolation: isolate;
@@ -360,14 +354,6 @@
 }
 
 @keyframes bm-tier-rainbow-border { 50% { background-position: 100% 0; } }
-
-.bm-tier-frame:is([data-bm-border="bigElectro"], [data-bm-border="neonGlass"], [data-bm-border="void"],
-    [data-bm-border="toxic"], [data-bm-border="purpleElectro"], [data-bm-border="pulseBorder"])::after {
-  content: "";
-  position: absolute;
-  inset: var(--bm-tier-art-bleed, -20%);
-  background: var(--bm-tier-border-art) center / 100% 100% no-repeat;
-}
 
 .bm-tier-coloured-name { color: var(--bm-tier-name-colour) !important; }
 [data-bm-shadow="sweetener"] { text-shadow: 0 0 1px var(--bm-tier-shadow-colour) !important; }

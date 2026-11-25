@@ -19,11 +19,26 @@ test("random payouts conserve the shared total across recipients and produce var
   for (let seed = 1; seed <= 50; seed++) {
     const payouts = randomMoneyDistribution(1000, denominations, 3, seededRandom(seed));
     assert.equal(payouts.length, 3);
+    assert.ok(payouts.every(pieces => pieces.length > 0));
     assert.equal(total(payouts), 1000);
+    assert.ok(payouts.flat().reduce((sum, piece) => sum + piece.count, 0) <= 24);
     assert.ok(payouts.flat().every(piece => Number.isSafeInteger(piece.count) && piece.count > 0));
     variations.add(JSON.stringify(payouts));
   }
   assert.ok(variations.size > 40);
+});
+
+test("Yuan distribution stays compact across many recipients and totals", () => {
+  const denominations = [10000, 5000, 2500, 1000, 500, 100, 50, 20, 10, 5, 1].map(value => ({id: String(value), value}));
+  for (const amount of [1000, 1001, 9999, 1000000]) {
+    for (let seed = 1; seed <= 30; seed++) {
+      const payouts = randomMoneyDistribution(amount, denominations, 3, seededRandom(seed));
+      assert.equal(total(payouts), amount);
+      const count = payouts.flat().reduce((sum, piece) => sum + piece.count, 0);
+      // Large totals may require more notes even in the initial efficient mix.
+      assert.ok(count <= Math.max(24, Math.floor(amount / 10000) + 20));
+    }
+  }
 });
 
 test("random denominations preserve exact change even when greedy change fails", () => {

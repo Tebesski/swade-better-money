@@ -141,13 +141,21 @@ export async function setExpenseDues(actor, changes, addMonth = false) {
     const entry = row.kind === "lifestyle" ? state.lifestyle : state.obligations.find(line => line.id === row.id);
     const monthly = formulaUnits(row.cost);
     if (addMonth) {
-      entry.dueUnits = safeUnits(row.units + monthly);
+      entry.dueUnits = safeUnits(row.units + Math.max(0, monthly - (entry.nextDiscountUnits ?? 0)));
       entry.dueMonths = row.count + 1;
+      delete entry.nextDiscountUnits;
     } else {
       const months = Number(change.value);
       if (change.mode === "months" && (!Number.isSafeInteger(months) || months < 0)) throw new Error(sbsI18n("swade-better-money.UI.Enteranonnegativewholenumber_d6600aadad"));
-      entry.dueUnits = change.mode === "months" ? safeUnits(monthly * months) : toUnits(change.value);
-      entry.dueMonths = change.mode === "months" ? months : monthly ? Math.ceil(entry.dueUnits / monthly) : 0;
+      if (change.mode === "money" && String(change.value).trim().startsWith("-")) {
+        entry.nextDiscountUnits = toUnits(String(change.value).trim().slice(1));
+        entry.dueUnits = row.units;
+        entry.dueMonths = row.count;
+      } else {
+        entry.dueUnits = change.mode === "months" ? safeUnits(monthly * months) : toUnits(change.value);
+        entry.dueMonths = change.mode === "months" ? months : monthly ? Math.ceil(entry.dueUnits / monthly) : 0;
+        delete entry.nextDiscountUnits;
+      }
     }
     delete entry.partialUnits;
   }

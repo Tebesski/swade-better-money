@@ -24,12 +24,15 @@ export async function manageExpenses(actor) {
   const rows = invoices(actor);
   const data = await formDialog(sbsI18n("swade-better-money.UI.Manageexpenses_22afd7dd25"), rows.map((row, index) => `<fieldset><legend>${escape(row.name)}</legend>
     <div class="money-fields"><label class="money-field">${sbsI18n("swade-better-money.UI.Setdueas_0507267618")}<select name="mode-${index}"><option value="money">${sbsI18n("swade-better-money.UI.Money_10ba39cef3", {p0: (escape(ruleCurrency()?.symbol ?? ""))})}</option><option value="months">${sbsI18n("swade-better-money.UI.Months_09ca7551b3")}</option></select></label>
-    <label class="money-field">${sbsI18n("swade-better-money.UI.Amount_49e96d7cdf")}<input name="value-${index}" type="number" min="0" step="0.000001" value="${row.units / 1_000_000}" required></label></div></fieldset>`).join(""), "Save", (_event, dialog) => {
+    <label class="money-field">${sbsI18n("swade-better-money.UI.Amount_49e96d7cdf")}<input name="value-${index}" type="number" step="0.000001" value="${row.nextDiscountUnits ? -row.nextDiscountUnits / 1_000_000 : row.units / 1_000_000}" required></label></div>
+    <small>Enter a negative money amount to reduce this expense’s next monthly charge once. Its current balance stays the same.</small></fieldset>`).join(""), "Save", (_event, dialog) => {
       const form = dialog.element.querySelector("form");
       rows.forEach((row, index) => form.elements[`mode-${index}`].addEventListener("change", event => {
         const input = form.elements[`value-${index}`];
         input.step = event.target.value === "months" ? "1" : "0.000001";
-        input.value = event.target.value === "months" ? row.count : row.units / 1_000_000;
+        if (event.target.value === "months") input.min = "0";
+        else input.removeAttribute("min");
+        input.value = event.target.value === "months" ? row.count : row.nextDiscountUnits ? -row.nextDiscountUnits / 1_000_000 : row.units / 1_000_000;
       }));
     });
   if (!data || data === "cancel") return;

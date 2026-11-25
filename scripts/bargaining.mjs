@@ -9,6 +9,7 @@ import {
   noticeHint, reactionInterval
 } from "./bargaining-rules.mjs";
 import {betterEffectsApi} from "./money-flags.mjs";
+import {rollMoney} from "./distribute-money.mjs";
 
 const {ApplicationV2, DialogV2, HandlebarsApplicationMixin} = foundry.applications.api;
 const invitation = "bargainInvitation";
@@ -678,16 +679,18 @@ function present(state) {
 
 async function openGMActivities(activities) {
   const choice = await DialogV2.wait({
-    classes: ["swade", "better-money", "sbs-standard-swade-sheet"],
+    classes: ["swade", "better-money", "sbs-standard-swade-sheet", "bm-gm-activities"],
     window: {title: sbsI18n("swade-better-money.UI.BetterMoney_b42f335a36")},
-    position: {width: 350},
+    position: {width: 540},
     buttons: [
       {action: "bargaining", label: sbsI18n("swade-better-money.UI.Bargaining_18d902a13d"), icon: "fa-solid fa-handshake"},
-      {action: "reward", label: sbsI18n("swade-better-money.UI.AwardPlayers_e30893e51e"), icon: "fa-solid fa-sack-dollar"}
+      {action: "reward", label: sbsI18n("swade-better-money.UI.AwardPlayers_e30893e51e"), icon: "fa-solid fa-sack-dollar"},
+      {action: "rollMoney", label: "Roll Money", icon: "fa-solid fa-dice"}
     ]
   });
   if (choice === "bargaining") await manageBargain();
   if (choice === "reward") await activities.award();
+  if (choice === "rollMoney") await rollMoney();
 }
 
 export function registerBargaining(activities) {

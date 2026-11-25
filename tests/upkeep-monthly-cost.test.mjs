@@ -43,6 +43,23 @@ test("monthly overrides belong to each character and feed future charges, paymen
     await assert.rejects(setExpenseMonthlyCost(first, "bill", "-1"));
     await assert.rejects(setExpenseMonthlyCost({...first, isOwner: false}, "bill", "100"));
     await assert.rejects(setExpenseMonthlyCost(first, "missing", "100"));
+    await setExpenseDues(first, [{id: "lifestyle", mode: "money", value: "0"}, {id: "bill", mode: "money", value: "0"}]);
+    await setExpenseDues(first, [{id: "lifestyle", mode: "money", value: "-500"}]);
+    assert.equal(invoices(first)[0].units, 0);
+    assert.equal(invoices(first)[0].nextDiscountUnits, 500 * SCALE);
+    await setExpenseDues(first, null, true);
+    assert.equal(invoices(first)[0].units, 2000 * SCALE);
+    assert.equal(invoices(first)[0].nextDiscountUnits, undefined);
+    await setExpenseDues(first, null, true);
+    assert.equal(invoices(first)[0].units, 4500 * SCALE);
+    await setExpenseDues(first, [{id: "bill", mode: "money", value: "-750"}]);
+    const before = invoices(first).find(row => row.id === "bill").units;
+    await setExpenseDues(first, null, true);
+    assert.equal(invoices(first).find(row => row.id === "bill").units, before);
+    assert.equal(invoices(first).find(row => row.id === "bill").nextDiscountUnits, undefined);
+    await setExpenseDues(first, null, true);
+    assert.equal(invoices(first).find(row => row.id === "bill").units, before + 500 * SCALE);
+    await assert.rejects(setExpenseDues(first, [{id: "bill", mode: "months", value: "-1"}]));
   } finally {
     globalThis.game = originalGame;
     globalThis.foundry = originalFoundry;

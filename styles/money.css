@@ -16,6 +16,42 @@
   max-height: min(75vh, 740px);
 }
 
+.bm-settings-window > .window-content > .money-workspace {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  align-content: start;
+}
+
+.bm-rule-grip {
+  cursor: grab;
+  color: var(--color-text-secondary);
+}
+
+.bm-rule-dragging { opacity: 0.5; }
+
+.bm-gm-activities .form-footer > button { white-space: nowrap; }
+
+.bm-money-roll-result {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block-start: 0.75rem;
+}
+
+.bm-money-roll-result[hidden] { display: none; }
+.bm-money-roll-result a {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+}
+.bm-money-roll-result a[aria-disabled="true"] { opacity: 0.5; cursor: wait; }
+
+.bm-settings-window [data-drop-position="before"] { box-shadow: 0 -2px var(--color-text-accent); }
+.bm-settings-window [data-drop-position="after"] { box-shadow: 0 2px var(--color-text-accent); }
+
 .better-money fieldset,
 .better-money-inventory {
   min-inline-size: 0;

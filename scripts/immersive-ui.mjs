@@ -78,7 +78,7 @@ async function editTier(group, existing) {
 class ImmersiveSettings extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "better-money-immersive-settings",
-    classes: ["swade", "better-money", "sbs-standard-swade-sheet"],
+    classes: ["swade", "better-money", "sbs-standard-swade-sheet", "bm-settings-window"],
     position: {width: 690, height: 710},
     window: {get title() { return sbsI18n("swade-better-money.UI.ImmersiveEconomy_d07815b42a"); }, resizable: true, icon: "fa-solid fa-coins"},
     actions: {
@@ -139,6 +139,48 @@ class ImmersiveSettings extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async _onRender(context, options) {
     await super._onRender(context, options);
+    const clearDrag = () => {
+      this.dragging = null;
+      for (const row of this.element.querySelectorAll("[data-rule-id]")) {
+        row.classList.remove("bm-rule-dragging");
+        delete row.dataset.dropPosition;
+      }
+    };
+    for (const row of this.element.querySelectorAll("[data-rule-id]")) {
+      row.addEventListener("dragstart", event => {
+        if (this.busy || !game.user.isGM) return event.preventDefault();
+        this.dragging = {group: row.dataset.ruleGroup, id: row.dataset.ruleId};
+        event.dataTransfer.setData("application/x-better-money-rule", JSON.stringify(this.dragging));
+        event.dataTransfer.effectAllowed = "move";
+        row.classList.add("bm-rule-dragging");
+      });
+      row.addEventListener("dragover", event => {
+        if (!this.dragging || this.dragging.group !== row.dataset.ruleGroup || this.dragging.id === row.dataset.ruleId) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        for (const other of this.element.querySelectorAll("[data-drop-position]")) delete other.dataset.dropPosition;
+        row.dataset.dropPosition = event.clientY < row.getBoundingClientRect().top + row.offsetHeight / 2 ? "before" : "after";
+      });
+      row.addEventListener("drop", event => {
+        const source = this.dragging;
+        if (!source || source.group !== row.dataset.ruleGroup || source.id === row.dataset.ruleId) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const after = row.dataset.dropPosition === "after";
+        clearDrag();
+        void this.applyChange(async () => {
+          const settings = foundry.utils.deepClone(immersiveRules());
+          const list = settings[source.group];
+          const index = list.findIndex(entry => entry.id === source.id);
+          if (index < 0 || !list.some(entry => entry.id === row.dataset.ruleId)) return;
+          const [entry] = list.splice(index, 1);
+          const target = list.findIndex(entry => entry.id === row.dataset.ruleId);
+          list.splice(target + Number(after), 0, entry);
+          await game.settings.set(MODULE_ID, "immersiveRules", settings);
+        });
+      });
+      row.addEventListener("dragend", clearDrag);
+    }
     const form = this.element.querySelector("form");
     form.onsubmit = event => {
       event.preventDefault();
